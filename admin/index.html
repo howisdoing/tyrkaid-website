@@ -6,7 +6,11 @@
     <title>Tyrkaid Machinery - Admin CMS</title>
 </head>
 <body>
-    <!-- 纯净版 Decap CMS，不经过任何 Netlify 中转 -->
+    <!-- 引入 Decap CMS 核心 -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <!-- 引入独立 GitHub 登录代理脚本，彻底切断对 api.netlify.com 的依赖 -->
+    <script>
+      CMS.init();
+    </script>
 </body>
 </html>
