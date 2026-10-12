@@ -1,0 +1,33 @@
+backends:
+  name: git-gateway
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "products"
+    label: "产品管理 (Products)"
+    folder: "content/products"
+    create: true
+    fields:
+      - {label: "产品名称 (中文)", name: "title_zh", widget: "string"}
+      - {label: "Product Name (English)", name: "title_en", widget: "string"}
+      - {label: "分类 (Category)", name: "category", widget: "select", options: ["open-mill", "internal-mixer", "calendar", "cutting", "cooling", "elevator"]}
+      - {label: "产品图片", name: "image", widget: "image"}
+      - {label: "辊筒材质 / 核心参数1", name: "spec1", widget: "string"}
+      - {label: "速比调节 / 核心参数2", name: "spec2", widget: "string"}
+      - {label: "电机功率 / 核心参数3", name: "spec3", widget: "string"}
+      - {label: "中文描述", name: "desc_zh", widget: "text"}
+      - {label: "English Description", name: "desc_en", widget: "text"}
+
+  - name: "news"
+    label: "公司新闻 (News)"
+    folder: "content/news"
+    create: true
+    fields:
+      - {label: "发布日期", name: "date", widget: "date"}
+      - {label: "新闻标题 (中文)", name: "title_zh", widget: "string"}
+      - {label: "News Title (English)", name: "title_en", widget: "string"}
+      - {label: "新闻摘要 (中文)", name: "snippet_zh", widget: "text"}
+      - {label: "News Snippet (English)", name: "snippet_en", widget: "text"}
