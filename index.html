@@ -1,3 +1,17 @@
+// 补全缺失的 showView 函数，防止点击事件崩溃
+function showView(viewId) {
+    // 如果你的页面使用了单页视图切换逻辑，在这里实现；
+    // 如果只是普通的跳转或弹窗，可以根据实际情况调整：
+    const views = document.querySelectorAll('.view-section');
+    if (views.length > 0) {
+        views.forEach(v => v.style.display = 'none');
+        const target = document.getElementById(viewId);
+        if (target) target.style.display = 'block';
+    } else {
+        console.log("Navigating to view:", viewId);
+    }
+}
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
