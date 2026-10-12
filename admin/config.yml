@@ -1,5 +1,6 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: howisdoing/tyrkaid-website
   branch: main
 
 media_folder: "images/uploads"
