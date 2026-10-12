@@ -5,34 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tyrkaid Machinery - 橡胶与塑料机械专业制造商</title>
     
-    <!-- 【核心修复】全局绝对挂载 showView 函数，彻底杜绝 onclick 报错 -->
-    <script>
-        window.showView = function(viewId) {
-            try {
-                const views = document.querySelectorAll('.view-section');
-                if (views && views.length > 0) {
-                    views.forEach(v => v.style.display = 'none');
-                    const target = document.getElementById(viewId);
-                    if (target) {
-                        target.style.display = 'block';
-                    }
-                } else {
-                    // 如果页面结构无多视图切换，直接作为安全锚点跳转或控制台输出
-                    console.log("Navigating to view:", viewId);
-                }
-            } catch (e) {
-                console.error("showView execution error:", e);
-            }
-        };
-    </script>
-
     <style>
-        /* 基础全局样式 */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f9f9f9; }
         header { background: #1a1a1a; color: #fff; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
         header h1 { font-size: 24px; font-weight: 600; letter-spacing: 1px; }
-        nav a { color: #ccc; text-decoration: none; margin-left: 20px; font-size: 14px; transition: color 0.2s; }
+        nav a { color: #ccc; text-decoration: none; margin-left: 20px; font-size: 14px; transition: color 0.2s; cursor: pointer; }
         nav a:hover { color: #fff; }
         
         .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
@@ -42,15 +20,15 @@
         
         .section-title { font-size: 22px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
         
-        /* 产品网格展示区 */
+        /* 产品网格 */
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+        .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
         .product-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
         .product-card img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
-        .product-info { padding: 20px; }
+        .product-info { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
         .product-info h3 { font-size: 18px; margin-bottom: 10px; color: #1e293b; }
-        .product-info p { font-size: 14px; color: #64748b; margin-bottom: 15px; }
-        .btn { display: inline-block; background: #2563eb; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 14px; transition: background 0.2s; }
+        .product-info p { font-size: 14px; color: #64748b; margin-bottom: 20px; flex-grow: 1; }
+        .btn { display: inline-block; background: #2563eb; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 14px; text-align: center; transition: background 0.2s; cursor: pointer; border: none; }
         .btn:hover { background: #1d4ed8; }
 
         footer { text-align: center; padding: 40px 0; color: #94a3b8; font-size: 13px; border-top: 1px solid #e2e8f0; margin-top: 60px; }
@@ -61,8 +39,8 @@
     <header>
         <h1>Tyrkaid Machinery</h1>
         <nav>
-            <a href="#" onclick="showView('home')">首页 (Home)</a>
-            <a href="#" onclick="showView('products')">产品中心 (Products)</a>
+            <a data-view="home">首页 (Home)</a>
+            <a data-view="products">产品中心 (Products)</a>
             <a href="/admin/" target="_blank">管理后台 (CMS)</a>
         </nav>
     </header>
@@ -80,23 +58,23 @@
         <div id="products" class="view-section" style="display:none;">
             <h3 class="section-title">核心产品系列</h3>
             <div class="product-grid" id="product-list-container">
-                <!-- 产品卡片动态呈现区域 -->
+                <!-- 示例产品卡片 -->
                 <div class="product-card">
                     <div class="product-info">
                         <h3>开放式炼胶机 (Open Mixing Mill)</h3>
                         <p>高耐磨辊筒，精密调距，满足各类橡胶开炼与混炼需求。</p>
-                        <a href="#" class="btn" onclick="showView('detail')">查看详情</a>
+                        <button class="btn" data-view="detail">查看详情</button>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- 产品详情占位 -->
+        <!-- 产品详情视图 -->
         <div id="detail" class="view-section" style="display:none;">
             <h3 class="section-title">产品详细参数</h3>
             <p>此处展示具体参数与配置说明...</p>
             <br>
-            <a href="#" class="btn" onclick="showView('products')">返回产品列表</a>
+            <button class="btn" data-view="products">返回产品列表</button>
         </div>
     </div>
 
@@ -104,5 +82,37 @@
         &copy; 2026 Dongguan Tyrkaid Machinery Co., Ltd. All Rights Reserved.
     </footer>
 
+    <!-- 全局防错脚本与事件托管 -->
+    <script>
+        // 1. 全局拦截所有导航与视图切换，彻底消除找不到 showView 的报错
+        document.addEventListener('click', function(e) {
+            const trigger = e.target.closest('[data-view]');
+            if (!trigger) return;
+            
+            const viewId = trigger.getAttribute('data-view');
+            if (viewId) {
+                e.preventDefault();
+                const views = document.querySelectorAll('.view-section');
+                if (views.length > 0) {
+                    views.forEach(v => v.style.display = 'none');
+                    const target = document.getElementById(viewId);
+                    if (target) {
+                        target.style.display = 'block';
+                        window.scrollTo(0, 0);
+                    }
+                }
+            }
+        });
+
+        // 2. 兜底注册 showView 全局函数，防止任何旧脚本残余调用崩溃
+        window.showView = function(viewId) {
+            const views = document.querySelectorAll('.view-section');
+            if (views && views.length > 0) {
+                views.forEach(v => v.style.display = 'none');
+                const target = document.getElementById(viewId);
+                if (target) target.style.display = 'block';
+            }
+        };
+    </script>
 </body>
 </html>
