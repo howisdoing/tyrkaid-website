@@ -1,6 +1,8 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: howisdoing/tyrkaid-website
   branch: main
+  base_url: https://api.github.com
 
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
