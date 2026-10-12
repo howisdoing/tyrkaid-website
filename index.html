@@ -33,18 +33,14 @@
 
         footer { text-align: center; padding: 40px 0; color: #94a3b8; font-size: 13px; border-top: 1px solid #e2e8f0; margin-top: 60px; }
     </style>
-    
-    <!-- 引入解析 Markdown 的轻量库 -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 </head>
 <body>
 
     <header>
         <h1>Tyrkaid Machinery</h1>
         <nav>
-            <a data-view="home">首页 (Home)</a>
-            <a data-view="products">产品中心 (Products)</a>
+            <a onclick="showView('home')">首页 (Home)</a>
+            <a onclick="showView('products')">产品中心 (Products)</a>
             <a href="/admin/" target="_blank">管理后台 (CMS)</a>
         </nav>
     </header>
@@ -62,18 +58,23 @@
         <div id="products" class="view-section" style="display:none;">
             <h3 class="section-title">核心产品系列</h3>
             <div class="product-grid" id="product-list-container">
-                <!-- 动态加载的真实产品会在这里显示 -->
-                <p style="color: #64748b;">正在从 CMS 后台加载产品数据...</p>
+                <!-- 示例产品卡片 -->
+                <div class="product-card">
+                    <div class="product-info">
+                        <h3>开放式炼胶机 (Open Mixing Mill)</h3>
+                        <p>高耐磨辊筒，精密调距，满足各类橡胶开炼与混炼需求。</p>
+                        <button class="btn" onclick="showView('detail')">查看详情</button>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- 产品详情视图 -->
         <div id="detail" class="view-section" style="display:none;">
-            <h3 class="section-title" id="detail-title">产品详细参数</h3>
-            <div id="detail-content" style="color: #475569; margin-bottom: 20px;">
-                <!-- 详细内容 -->
-            </div>
-            <button class="btn" data-view="products">返回产品列表</button>
+            <h3 class="section-title">产品详细参数</h3>
+            <p>此处展示具体参数与配置说明...</p>
+            <br>
+            <button class="btn" onclick="showView('products')">返回产品列表</button>
         </div>
     </div>
 
@@ -81,64 +82,22 @@
         &copy; 2026 Dongguan Tyrkaid Machinery Co., Ltd. All Rights Reserved.
     </footer>
 
-    <!-- 交互与 CMS 数据加载脚本 -->
+    <!-- 完整的视图切换控制逻辑 -->
     <script>
-        // 1. 视图切换逻辑
-        document.addEventListener('click', function(e) {
-            const trigger = e.target.closest('[data-view]');
-            if (!trigger) return;
+        function showView(viewId) {
+            // 隐藏所有视图模块
+            const sections = document.querySelectorAll('.view-section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
             
-            const viewId = trigger.getAttribute('data-view');
-            if (viewId) {
-                e.preventDefault();
-                const views = document.querySelectorAll('.view-section');
-                if (views.length > 0) {
-                    views.forEach(v => v.style.display = 'none');
-                    const target = document.getElementById(viewId);
-                    if (target) {
-                        target.style.display = 'block';
-                        window.scrollTo(0, 0);
-                    }
-                }
-            }
-        });
-
-        // 2. 自动拉取 Decap CMS 发布的真实产品数据
-        async function loadProducts() {
-            const container = document.getElementById('product-list-container');
-            try {
-                // 假设你的 Decap CMS 配置的 products 文件夹路径在 /content/products/
-                // 如果是其他路径，可以在这里调整
-                const response = await fetch('./content/products/index.json').catch(() => null);
-                
-                // 如果没有 JSON 清单，我们通过静态模拟或预留接口渲染
-                // 实际生产中可通过静态目录加载
-                container.innerHTML = `
-                    <div class="product-card">
-                        <div class="product-info">
-                            <h3>开放式炼胶机 (Open Mixing Mill)</h3>
-                            <p>高耐磨辊筒，精密调距，满足各类橡胶开炼与混炼需求。</p>
-                            <button class="btn" data-view="detail">查看详情</button>
-                        </div>
-                    </div>
-                `;
-            } catch (err) {
-                console.error("加载产品失败:", err);
+            // 显示目标视图模块
+            const target = document.getElementById(viewId);
+            if (target) {
+                target.style.display = 'block';
+                window.scrollTo(0, 0);
             }
         }
-
-        // 页面加载后执行
-        document.addEventListener('DOMContentLoaded', loadProducts);
-
-        // 3. 兜底注册 showView 全局函数
-        window.showView = function(viewId) {
-            const views = document.querySelectorAll('.view-section');
-            if (views && views.length > 0) {
-                views.forEach(v => v.style.display = 'none');
-                const target = document.getElementById(viewId);
-                if (target) target.style.display = 'block';
-            }
-        };
     </script>
 </body>
 </html>
