@@ -2,6 +2,7 @@ backend:
   name: github
   repo: howisdoing/tyrkaid-website
   branch: main
+  base_url: https://your-oauth-proxy.herokuapp.com # 或者使用下面更简单的 GitHub Personal Access Token 模式
 
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
