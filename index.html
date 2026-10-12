@@ -1,399 +1,108 @@
-// 补全缺失的 showView 函数，防止点击事件崩溃
-function showView(viewId) {
-    // 如果你的页面使用了单页视图切换逻辑，在这里实现；
-    // 如果只是普通的跳转或弹窗，可以根据实际情况调整：
-    const views = document.querySelectorAll('.view-section');
-    if (views.length > 0) {
-        views.forEach(v => v.style.display = 'none');
-        const target = document.getElementById(viewId);
-        if (target) target.style.display = 'block';
-    } else {
-        console.log("Navigating to view:", viewId);
-    }
-}
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>东莞赛铠机械有限公司 - Tyrkaid Machinery</title>
+    <title>Tyrkaid Machinery - 橡胶与塑料机械专业制造商</title>
+    
+    <!-- 【核心修复】全局绝对挂载 showView 函数，彻底杜绝 onclick 报错 -->
+    <script>
+        window.showView = function(viewId) {
+            try {
+                const views = document.querySelectorAll('.view-section');
+                if (views && views.length > 0) {
+                    views.forEach(v => v.style.display = 'none');
+                    const target = document.getElementById(viewId);
+                    if (target) {
+                        target.style.display = 'block';
+                    }
+                } else {
+                    // 如果页面结构无多视图切换，直接作为安全锚点跳转或控制台输出
+                    console.log("Navigating to view:", viewId);
+                }
+            } catch (e) {
+                console.error("showView execution error:", e);
+            }
+        };
+    </script>
+
     <style>
-        :root {
-            --primary: #0f172a;
-            --accent: #2563eb;
-            --text-main: #1e293b;
-            --text-light: #64748b;
-            --bg-light: #f8fafc;
-            --border: #cbd5e1;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { color: var(--text-main); background: #fff; line-height: 1.6; }
-
-        /* Top Bar */
-        .top-bar { background: var(--primary); color: #cbd5e1; padding: 8px 5%; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
-        .top-right { display: flex; gap: 10px; align-items: center; }
-        .lang-btn, .admin-btn { background: var(--accent); color: #fff; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; text-decoration: none; }
-        .admin-btn { background: #059669; }
-        .admin-btn:hover { background: #047857; }
-
-        /* Navbar */
-        nav { background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .nav-container { max-width: 1200px; margin: 0 auto; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 20px; font-weight: 700; color: var(--primary); text-decoration: none; }
-        .logo span { color: var(--accent); }
-        .nav-menu { display: flex; gap: 30px; list-style: none; }
-        .nav-menu a { text-decoration: none; color: var(--text-main); font-weight: 500; cursor: pointer; }
-        .nav-menu a:hover { color: var(--accent); }
-
-        /* Hero */
-        .hero { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: #fff; padding: 90px 20px; text-align: center; }
-        .hero h1 { font-size: 38px; margin-bottom: 15px; font-weight: 700; }
-        .hero p { font-size: 17px; max-width: 750px; margin: 0 auto 30px; color: #cbd5e1; }
-        .btn { background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block; border: none; cursor: pointer; }
+        /* 基础全局样式 */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f9f9f9; }
+        header { background: #1a1a1a; color: #fff; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 24px; font-weight: 600; letter-spacing: 1px; }
+        nav a { color: #ccc; text-decoration: none; margin-left: 20px; font-size: 14px; transition: color 0.2s; }
+        nav a:hover { color: #fff; }
+        
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .hero { background: #2c3e50; color: white; padding: 60px 40px; border-radius: 8px; margin-bottom: 40px; }
+        .hero h2 { font-size: 32px; margin-bottom: 15px; }
+        .hero p { font-size: 16px; color: #cbd5e1; max-width: 700px; }
+        
+        .section-title { font-size: 22px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+        
+        /* 产品网格展示区 */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .product-card img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
+        .product-info { padding: 20px; }
+        .product-info h3 { font-size: 18px; margin-bottom: 10px; color: #1e293b; }
+        .product-info p { font-size: 14px; color: #64748b; margin-bottom: 15px; }
+        .btn { display: inline-block; background: #2563eb; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 14px; transition: background 0.2s; }
         .btn:hover { background: #1d4ed8; }
 
-        /* Main Container */
-        .container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
-        .section-title { text-align: center; font-size: 30px; margin-bottom: 10px; color: var(--primary); }
-        .section-desc { text-align: center; color: var(--text-light); margin-bottom: 40px; font-size: 15px; }
-
-        /* Views management */
-        .view-section { display: none; }
-        .view-section.active { display: block; }
-
-        /* Category Filter Tabs */
-        .filter-tabs { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
-        .filter-btn { padding: 8px 16px; background: var(--bg-light); border: 1px solid var(--border); border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-        .filter-btn.active, .filter-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-        /* Product Grid */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }
-        .product-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-        .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.06); }
-        .product-thumb { height: 210px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: var(--text-light); font-weight: 600; font-size: 15px; border-bottom: 1px solid var(--border); }
-        .product-info { padding: 22px; display: flex; flex-direction: column; flex-grow: 1; }
-        .product-cat { font-size: 12px; color: var(--accent); font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
-        .product-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: var(--primary); }
-        .product-desc-short { font-size: 14px; color: var(--text-light); margin-bottom: 15px; flex-grow: 1; }
-        .view-detail-link { color: var(--accent); font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
-
-        /* Professional Product Detail View */
-        .breadcrumb { margin-bottom: 25px; font-size: 14px; color: var(--text-light); }
-        .breadcrumb a { color: var(--accent); text-decoration: none; cursor: pointer; }
-        
-        .detail-container { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 45px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .detail-gallery { display: flex; flex-direction: column; gap: 15px; }
-        .product-large-img { height: 380px; background: #f8fafc; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--primary); border: 1px solid var(--border); font-size: 16px; }
-        .thumbnail-list { display: flex; gap: 12px; }
-        .thumbnail-item { width: 90px; height: 65px; background: #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-light); cursor: pointer; border: 2px solid var(--border); font-weight: 500; }
-        .thumbnail-item.active { border-color: var(--accent); background: #eff6ff; color: var(--accent); }
-        
-        .detail-info h2 { font-size: 28px; color: var(--primary); margin-bottom: 12px; font-weight: 700; }
-        .detail-badges { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
-        .badge { background: #eff6ff; color: var(--accent); padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
-        .detail-desc { font-size: 15px; color: var(--text-light); margin-bottom: 25px; line-height: 1.8; }
-        
-        /* Specs Table Style */
-        .specs-title { font-size: 16px; font-weight: 600; color: var(--primary); margin-bottom: 10px; border-left: 4px solid var(--accent); padding-left: 8px; }
-        .detail-specs { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px; }
-        .detail-specs tr { border-bottom: 1px solid var(--border); }
-        .detail-specs td { padding: 10px 12px; }
-        .detail-specs td:first-child { color: var(--text-light); font-weight: 500; width: 40%; background: var(--bg-light); }
-        .detail-specs td:last-child { color: var(--primary); font-weight: 600; }
-
-        /* News Section */
-        .news-section { background: var(--bg-light); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 70px 20px; }
-        .news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
-        .news-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .news-date { font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
-        .news-title { font-size: 18px; font-weight: 600; color: var(--primary); margin-bottom: 10px; }
-        .news-snippet { font-size: 14px; color: var(--text-light); margin-bottom: 15px; }
-
-        /* About & Footer */
-        .about-section { padding: 70px 20px; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
-        .about-text h2 { font-size: 26px; color: var(--primary); margin-bottom: 15px; }
-        .about-text p { color: var(--text-light); margin-bottom: 15px; font-size: 15px; }
-        .about-placeholder-img { height: 300px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-light); font-weight: 600; }
-
-        footer { background: var(--primary); color: #fff; padding: 50px 20px 20px; }
-        .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; margin-bottom: 30px; }
-        .footer-col h4 { font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid var(--accent); padding-bottom: 6px; display: inline-block; }
-        .footer-col p, .footer-col li { font-size: 14px; color: #cbd5e1; margin-bottom: 8px; list-style: none; }
-        .copyright { text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 13px; color: #94a3b8; }
-
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: #fff; width: 100%; max-width: 550px; border-radius: 8px; padding: 30px; position: relative; }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 22px; cursor: pointer; color: var(--text-light); }
-        .modal-title { font-size: 20px; color: var(--primary); margin-bottom: 10px; }
-        .modal-desc { font-size: 14px; color: var(--text-light); margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; }
-        textarea.form-control { height: 90px; resize: vertical; }
-
-        @media(max-width: 768px) {
-            .about-section, .news-grid, .detail-container { grid-template-columns: 1fr; }
-            .nav-menu { display: none; }
-        }
+        footer { text-align: center; padding: 40px 0; color: #94a3b8; font-size: 13px; border-top: 1px solid #e2e8f0; margin-top: 60px; }
     </style>
 </head>
 <body>
 
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div>
-            <span>邮箱: tyrkaidmach@gmail.com</span>
-            <span>电话/微信: +86 156 0592 1919</span>
+    <header>
+        <h1>Tyrkaid Machinery</h1>
+        <nav>
+            <a href="#" onclick="showView('home')">首页 (Home)</a>
+            <a href="#" onclick="showView('products')">产品中心 (Products)</a>
+            <a href="/admin/" target="_blank">管理后台 (CMS)</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- 首页视图 -->
+        <div id="home" class="view-section">
+            <div class="hero">
+                <h2>专业橡胶与塑料加工设备制造商</h2>
+                <p>专注于密炼机、开炼机、压延机及定制化橡胶塑料机械生产与全球出口，为您提供卓越的工业解决方案。</p>
+            </div>
         </div>
-        <div class="top-right">
-            <button class="lang-btn" id="langBtn" onclick="toggleLang()">English</button>
-            <a href="/admin/" class="admin-btn" target="_blank">管理后台 (CMS)</a>
+
+        <!-- 产品中心视图 -->
+        <div id="products" class="view-section" style="display:none;">
+            <h3 class="section-title">核心产品系列</h3>
+            <div class="product-grid" id="product-list-container">
+                <!-- 产品卡片动态呈现区域 -->
+                <div class="product-card">
+                    <div class="product-info">
+                        <h3>开放式炼胶机 (Open Mixing Mill)</h3>
+                        <p>高耐磨辊筒，精密调距，满足各类橡胶开炼与混炼需求。</p>
+                        <a href="#" class="btn" onclick="showView('detail')">查看详情</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 产品详情占位 -->
+        <div id="detail" class="view-section" style="display:none;">
+            <h3 class="section-title">产品详细参数</h3>
+            <p>此处展示具体参数与配置说明...</p>
+            <br>
+            <a href="#" class="btn" onclick="showView('products')">返回产品列表</a>
         </div>
     </div>
 
-    <!-- Navigation -->
-    <nav>
-        <div class="nav-container">
-            <a href="#" class="logo" onclick="showView('home')">TYRKAID <span>MACHINERY</span></a>
-            <ul class="nav-menu">
-                <li><a onclick="showView('home')" data-i18n="nav_home">首页</a></li>
-                <li><a onclick="showView('products')" data-i18n="nav_products">产品中心</a></li>
-                <li><a onclick="showView('home', 'news')" data-i18n="nav_news">公司新闻</a></li>
-                <li><a onclick="showView('home', 'about')" data-i18n="nav_about">关于我们</a></li>
-                <li><a onclick="showView('home', 'contact')" data-i18n="nav_contact">联系方式</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- VIEW 1: HOME VIEW -->
-    <div id="homeView" class="view-section active">
-        <section class="hero">
-            <h1 data-i18n="hero_title">东莞赛铠机械 - 橡塑与硅胶机械装备定制专家</h1>
-            <p data-i18n="hero_desc">专注于开炼机、密炼机、压延机、切胶机、冷切机及提升机等工业装备研发与制造，为全球客户提供一站式专业解决方案。</p>
-            <a onclick="showView('products')" class="btn" data-i18n="hero_btn">进入产品中心</a>
-        </section>
-
-        <section id="news" class="news-section">
-            <div class="container" style="padding: 0;">
-                <h2 class="section-title" data-i18n="news_title">公司新闻与行业动态</h2>
-                <p class="section-desc">了解东莞赛铠机械最新展会信息、技术研发成果及企业动态</p>
-                
-                <div class="news-grid">
-                    <div class="news-card">
-                        <div class="news-date">2026-04-15</div>
-                        <h3 class="news-title">赛铠机械圆满亮相 CHINAPLAS 2026 上海国际橡胶塑料展</h3>
-                        <p class="news-snippet">本届展会上，赛铠机械携最新研发的智能全自动硅胶开炼机与密炼机组合亮相 1.1A99 展位，吸引了众多海内外客商驻足洽谈。</p>
-                    </div>
-                    <div class="news-card">
-                        <div class="news-date">2025-09-20</div>
-                        <h3 class="news-title">我司成功交付新一代环保型橡胶精密压延机生产线</h3>
-                        <p class="news-snippet">经过长达一个月的严苛测试与调试，新一代高效节能精密压延机组顺利通过客户验收并发往海外，获得高度认可。</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="about" class="about-section">
-            <div class="about-text">
-                <h2 data-i18n="about_title">东莞赛铠机械有限公司</h2>
-                <p>坐落于中国制造业名城——广东东莞。赛铠机械专注于橡胶和硅塑料加工机械的设计、研发与制造，是集专业制造与4S维护服务于一体的高新技术企业。</p>
-                <p>多年来，公司坚持严苛的质量管理体系与精湛的机械制造工艺，产品涵盖开炼机、密炼机、压延机、切胶机、冷却线及提升机等核心装备，远销全球多个国家和地区。</p>
-                <a onclick="showView('home', 'contact')" class="btn">联系我们的技术专家</a>
-            </div>
-            <div class="about-placeholder-img">Tyrkaid Manufacturing Facility</div>
-        </section>
-    </div>
-
-    <!-- VIEW 2: PRODUCT LISTING VIEW -->
-    <div id="productsView" class="view-section">
-        <section class="container">
-            <h2 class="section-title" data-i18n="prod_title">产品中心 (Product Center)</h2>
-            <p class="section-desc">请选择产品分类或直接点击型号查看大图与详细参数介绍</p>
-
-            <div class="filter-tabs">
-                <button class="filter-btn active" onclick="filterCat('all', this)">全部产品</button>
-                <button class="filter-btn" onclick="filterCat('open-mill', this)">开炼机</button>
-                <button class="filter-btn" onclick="filterCat('internal-mixer', this)">密炼机</button>
-                <button class="filter-btn" onclick="filterCat('calendar', this)">压延机</button>
-                <button class="filter-btn" onclick="filterCat('cutting', this)">切胶机</button>
-                <button class="filter-btn" onclick="filterCat('cooling', this)">冷切机</button>
-                <button class="filter-btn" onclick="filterCat('elevator', this)">提升机</button>
-            </div>
-
-            <div class="product-grid" id="productGrid">
-                <div class="product-card" data-cat="open-mill" onclick="openDetail('p1')">
-                    <div class="product-thumb">TK-K12L 缩略图</div>
-                    <div class="product-info">
-                        <span class="product-cat">开炼机</span>
-                        <h3 class="product-title">TK-K12L 硅胶高精度开炼机</h3>
-                        <p class="product-desc-short">专为生胶咀嚼、聚合物混炼、片材化及精炼设计，配备合金冷硬铸铁辊筒与自动翻胶装置。</p>
-                        <span class="view-detail-link">查看产品详情 &rarr;</span>
-                    </div>
-                </div>
-
-                <div class="product-card" data-cat="internal-mixer" onclick="openDetail('p2')">
-                    <div class="product-thumb">加压式密炼机 缩略图</div>
-                    <div class="product-info">
-                        <span class="product-cat">密炼机</span>
-                        <h3 class="product-title">加压式密炼机 (Banbury Mixer)</h3>
-                        <p class="product-desc-short">广泛用于橡胶与化工原料的高效混炼、捏合与分散，温控精准，耐磨损性能优异。</p>
-                        <span class="view-detail-link">查看产品详情 &rarr;</span>
-                    </div>
-                </div>
-
-                <div class="product-card" data-cat="calendar" onclick="openDetail('p3')">
-                    <div class="product-thumb">精密压延机 缩略图</div>
-                    <div class="product-info">
-                        <span class="product-cat">压延机</span>
-                        <h3 class="product-title">双辊 / 三辊精密压延机</h3>
-                        <p class="product-desc-short">用于橡胶及塑料薄膜片材压延成型、帘帆布挂胶，厚度均匀度极高，操作简便安全。</p>
-                        <span class="view-detail-link">查看产品详情 &rarr;</span>
-                    </div>
-                </div>
-
-                <div class="product-card" data-cat="cutting" onclick="openDetail('p4')">
-                    <div class="product-thumb">CNC切胶机 缩略图</div>
-                    <div class="product-info">
-                        <span class="product-cat">切胶机</span>
-                        <h3 class="product-title">TK-Q8601 CNC 自动切胶机</h3>
-                        <p class="product-desc-short">专为天然橡胶、合成橡胶及塑料块的高效裁切设计，配备安全防护罩与准确定位系统。</p>
-                        <span class="view-detail-link">查看产品详情 &rarr;</span>
-                    </div>
-                </div>
-
-                <div class="product-card" data-cat="cooling" onclick="openDetail('p5')">
-                    <div class="product-thumb">冷却流水线 缩略图</div>
-                    <div class="product-info">
-                        <span class="product-cat">冷切机</span>
-                        <h3 class="product-title">橡胶片自动冷却流水线</h3>
-                        <p class="product-desc-short">配合开炼机与密炼机使用，实现片状橡胶浸涂隔离、强制风冷与自动堆叠一体化。</p>
-                        <span class="view-detail-link">查看产品详情 &rarr;</span>
-                    </div>
-                </div>
-
-                <div class="product-card" data-cat="elevator" onclick="openDetail('p6')">
-                    <div class="product-thumb">重型提升机 缩略图</div>
-                    <div class="product-info">
-                        <span class="product-cat">提升机</span>
-                        <h3 class="product-title">重型物料提升送料机</h3>
-                        <p class="product-desc-short">与混炼设备无缝对接，实现自动化、省力化原料输送，大幅提高车间生产效率与安全性。</p>
-                        <span class="view-detail-link">查看产品详情 &rarr;</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <!-- VIEW 3: PROFESSIONAL PRODUCT DETAIL VIEW -->
-    <div id="detailView" class="view-section">
-        <section class="container">
-            <div class="breadcrumb">
-                <a onclick="showView('home')">首页</a> &gt; 
-                <a onclick="showView('products')">产品中心</a> &gt; 
-                <span id="breadcrumbTitle">产品详情</span>
-            </div>
-
-            <div class="detail-container">
-                <div class="detail-gallery">
-                    <div class="product-large-img" id="largeImgDisplay">产品大图展示区</div>
-                    <div class="thumbnail-list">
-                        <div class="thumbnail-item active" onclick="setLargeImg('主视大图')">主视图</div>
-                        <div class="thumbnail-item" onclick="setLargeImg('细节特写')">细节特写</div>
-                        <div class="thumbnail-item" onclick="setLargeImg('车间应用')">车间应用</div>
-                    </div>
-                </div>
-
-                <div class="detail-info">
-                    <h2 id="detailTitle">产品型号名称</h2>
-                    <div class="detail-badges">
-                        <span class="badge">厂方直销 / Direct Factory</span>
-                        <span class="badge">支持非标定制 / Customizable</span>
-                        <span class="badge">4S质量保障 / Quality Assured</span>
-                    </div>
-                    <p class="detail-desc" id="detailDesc">详细的产品介绍说明...</p>
-                    
-                    <div class="specs-title">技术参数规格 / Technical Specifications</div>
-                    <table class="detail-specs" id="detailSpecsTable"></table>
-
-                    <button class="btn" onclick="openModalFromDetail()">立即获取详细规格书 & 报价</button>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <!-- Footer -->
-    <footer id="contact">
-        <div class="footer-content">
-            <div class="footer-col">
-                <h4>东莞赛铠机械有限公司</h4>
-                <p>地址：广东省东莞市高埗镇高埗中央中路1号1栋101室</p>
-                <p>邮箱：tyrkaidmach@gmail.com</p>
-                <p>电话/微信：+86 156 0592 1919</p>
-            </div>
-            <div class="footer-col">
-                <h4>快速导航</h4>
-                <ul>
-                    <li><a onclick="showView('home')">首页</a></li>
-                    <li><a onclick="showView('products')">产品中心</a></li>
-                    <li><a onclick="showView('home', 'news')">公司新闻</a></li>
-                    <li><a onclick="showView('home', 'about')">关于我们</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>主营核心设备</h4>
-                <p>开炼机 (Open Mixing Mill)</p>
-                <p>密炼机 (Internal Mixer)</p>
-                <p>压延机 (Calender)</p>
-                <p>切胶机 (Cutting Machine)</p>
-            </div>
-        </div>
-        <div class="copyright">Copyright © 2026 Dongguan Tyrkaid Machinery Co., Ltd. All Rights Reserved.</div>
+    <footer>
+        &copy; 2026 Dongguan Tyrkaid Machinery Co., Ltd. All Rights Reserved.
     </footer>
 
-    <!-- Inquiry Modal -->
-    <div class="modal" id="inquiryModal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h3 class="modal-title">产品在线询盘</h3>
-            <p class="modal-desc" id="modalSubText">请留下您的联系方式与具体需求，我们将尽快为您提供报价与规格书：</p>
-            <form onsubmit="handleForm(event)">
-                <div class="form-group"><input type="text" class="form-control" placeholder="您的姓名 / Your Name" required></div>
-                <div class="form-group"><input type="email" class="form-control" placeholder="电子邮箱 / Email Address" required></div>
-                <div class="form-group"><input type="text" class="form-control" placeholder="电话号码或 WhatsApp / Phone or WhatsApp"></div>
-                <div class="form-group"><textarea class="form-control" placeholder="请填写您需要的产能、辊筒尺寸或其他定制需求..."></textarea></div>
-                <button type="submit" class="btn" style="width:100%;">确认提交询盘</button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        const productsData = {
-            p1: {
-                zh: {
-                    title: "TK-K12L 硅胶高精度开炼机",
-                    desc: "专为生胶咀嚼、聚合物混炼、片材化及精炼设计。辊筒采用合金冷硬铸铁制造，表面耐磨损硬度高，配备高精度测距与自动翻胶装置。",
-                    specs: [["辊筒材质", "合金冷硬铸铁 (硬度HS 68-75)"], ["速比调节", "1:1.27 (支持按需定制)"], ["电机功率", "11kW / 15kW"], ["辊筒工作长度", "400mm / 600mm"], ["安全制动", "反向刹车紧急制动装置"]]
-                },
-                en: {
-                    title: "TK-K12L Silicone Precision Open Mixing Mill",
-                    desc: "Designed for raw rubber mastication, polymer mixing, sheeting, and refining. Features alloy chilled cast iron rolls with high wear resistance.",
-                    specs: [["Roll Material", "Alloy chilled cast iron (HS 68-75)"], ["Speed Ratio", "1:1.27 (Customizable)"], ["Motor Power", "11kW / 15kW"], ["Working Length", "400mm / 600mm"], ["Safety Brake", "Reverse emergency braking device"]]
-                }
-            },
-            p2: {
-                zh: {
-                    title: "加压式密炼机 (Banbury Mixer)",
-                    desc: "广泛用于橡胶与化工原料的高效混炼、捏合与分散。采用独特的转子棱峰设计与精密温控系统，确保混炼均匀度极高。",
-                    specs: [["有效容积", "55L / 75L / 110L"], ["转子结构", "两棱/四棱整体式耐磨转子"], ["加热方式", "蒸汽 / 电加热 / 模温机冷却"], ["翻转角度", "120° 前倾式液压翻转"], ["卸料门密封", "气动压紧，无粉尘泄漏"]]
-                },
-                en: {
-                    title: "Banbury Internal Mixer",
-                    desc: "Extensively utilized for rapid and efficient blending, kneading, and dispersing of rubber and chemical materials.",
-                    specs: [["Effective Volume", "55L / 75L / 110L"], ["Rotor Type", "Two/Four-wing integrated rotor"], ["Heating Method", "Steam / Electric / Mold temp controller"], ["Tilt Angle", "120° forward hydraulic tilt"], ["Dust Seal", "Pneumatic pressure seal"]]
-                }
-            },
-            p3: {
-                zh: {
-                    title: "双辊 / 三辊精密压延机",
-                    desc: "用于橡胶及塑料薄膜片材压延成型、帘帆布挂胶，厚度均匀度极高，操作简便安全。采用
+</body>
+</html>
