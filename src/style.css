@@ -139,3 +139,84 @@ body,button,input,textarea,select{font-family:var(--font-ui);}
     padding:6px 8px;
   }
 }
+
+
+/* ===== Clean logo presentation: no frame, no border ===== */
+.logo.logo-has-image{
+  box-sizing:border-box;
+  width:220px;
+  min-width:220px;
+  height:72px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  overflow:hidden;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+.logo.logo-has-image .logo-image-box{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  overflow:hidden;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+.logo.logo-has-image .logo-image{
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:left center;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+
+/* Visual-admin preview follows the same frameless treatment. */
+.preview-logo.has-image{
+  width:82px;
+  height:34px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  overflow:hidden;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+.preview-logo.has-image img{
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:left center;
+  border:0 !important;
+  box-shadow:none !important;
+}
+
+@media (max-width: 980px){
+  .logo.logo-has-image{
+    width:190px;
+    min-width:190px;
+    height:64px;
+  }
+}
+@media (max-width: 680px){
+  .logo.logo-has-image{
+    width:160px;
+    min-width:0;
+    max-width:46vw;
+    height:54px;
+  }
+}
