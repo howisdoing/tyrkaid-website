@@ -48,3 +48,22 @@ INSERT OR IGNORE INTO products(id,model,name,slug,category_id,summary,descriptio
  (2,'LM-05','Laboratory Mini Mixer','lm-05-laboratory-mixer',2,'Compact mixing for formulation research and sample development.','A compact research mixer designed for evaluation of new formulations and preparation of samples.','{"Application":"R&D laboratory","Format":"Bench-top"}','[]',1,1);
 INSERT OR IGNORE INTO news(id,title,slug,excerpt,body,cover_url,status,published_at) VALUES
  (1,'Introducing Our Updated Industrial Equipment Range','new-product-line','Explore our latest approach to reliable engineering and practical equipment design.','We are pleased to share updates across our industrial equipment range.\n\nBrowse the product center for current examples of our solutions.','','published','2026-09-12T00:00:00Z');
+
+-- 可视化网站设置与导航（新增）
+CREATE TABLE IF NOT EXISTS site_settings(
+ id INTEGER PRIMARY KEY CHECK(id=1),
+ data_json TEXT NOT NULL DEFAULT '{}',
+ updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS navigation(
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ label TEXT NOT NULL,
+ path TEXT NOT NULL,
+ sort_order INTEGER DEFAULT 0,
+ visible INTEGER NOT NULL DEFAULT 1,
+ created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+ updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+INSERT OR IGNORE INTO site_settings(id,data_json) VALUES(1,'{}');
+INSERT OR IGNORE INTO navigation(id,label,path,sort_order,visible) VALUES
+ (1,'首页','/',1,1),(2,'产品中心','/products',2,1),(3,'关于我们','/about',3,1),(4,'公司新闻','/news',4,1),(5,'联系我们','/contact',5,1);
