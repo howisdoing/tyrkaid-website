@@ -54,3 +54,88 @@ body,button,input,textarea,select{font-family:var(--font-ui);}
 .product-card h3,.news-card h3,.category-card h3,.detail-info h3,.advantage-card h3{letter-spacing:-.12px;}
 .masthead-copy strong{font-family:var(--font-display);letter-spacing:0;}
 @media(max-width:650px){.hero h1{letter-spacing:-1.4px}.page-head h1,.detail-info h1,.article-heading h1{letter-spacing:-.25px}}
+
+/* Logo image-only layout: uploaded logo already contains brand text */
+.logo.logo-has-image{display:flex;align-items:center;justify-content:center;gap:0;width:min(100%,260px);min-width:180px;height:74px;padding:7px 12px;border:1px solid #edf1f3;background:#fff;border-radius:2px;overflow:hidden}
+.logo-image-box{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-width:0}
+.logo.logo-has-image .logo-image{display:block;width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;object-position:center}
+.masthead .logo.logo-has-image{justify-self:start}
+.footer .logo.logo-has-image{width:220px;height:64px;background:#fff}
+.admin-sidebar .logo.logo-has-image{width:100%;height:58px;min-width:0;background:#fff}
+.preview-logo.has-image{display:flex;align-items:center;justify-content:center;padding:3px 5px;overflow:hidden}
+.preview-logo.has-image img{display:block;max-width:100%;max-height:48px;width:auto;height:auto;object-fit:contain}
+@media(max-width:900px){.logo.logo-has-image{width:220px;height:66px;min-width:150px}}
+@media(max-width:650px){.masthead .logo.logo-has-image{justify-self:center;width:min(82vw,260px);height:64px}}
+
+
+/* ===== Logo automatic sizing: stable header fit =====
+   Uploaded logos are constrained by the header area automatically.
+   The original aspect ratio is preserved and the image is never cropped.
+*/
+.logo.logo-has-image{
+  box-sizing:border-box;
+  width:220px;
+  min-width:220px;
+  height:72px;
+  padding:8px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#fff;
+}
+.logo.logo-has-image .logo-image-box{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.logo.logo-has-image .logo-image{
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+
+/* Keep the visual-admin preview consistent with the real header. */
+.preview-logo.has-image{
+  width:82px;
+  height:34px;
+  padding:3px 5px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#fff;
+}
+.preview-logo.has-image img{
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+
+@media (max-width: 980px){
+  .logo.logo-has-image{
+    width:190px;
+    min-width:190px;
+    height:64px;
+    padding:7px 9px;
+  }
+}
+@media (max-width: 680px){
+  .logo.logo-has-image{
+    width:160px;
+    min-width:0;
+    max-width:46vw;
+    height:54px;
+    padding:6px 8px;
+  }
+}
