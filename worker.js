@@ -4,6 +4,7 @@ import { onRequestGet as sessionGet } from './functions/api/auth/session.js';
 import { onRequestPost as logoutPost } from './functions/api/auth/logout.js';
 import { onRequest as adminItems } from './functions/api/admin/items.js';
 import { onRequestPost as adminUpload } from './functions/api/admin/upload.js';
+import { onRequest as adminMedia } from './functions/api/admin/media.js';
 
 const methodNotAllowed = () => new Response(JSON.stringify({error:'Method not allowed'}), {
   status: 405,
@@ -33,6 +34,9 @@ export default {
       }
       if (path === '/api/admin/upload') {
         return request.method === 'POST' ? adminUpload({request, env, ctx}) : methodNotAllowed();
+      }
+      if (path === '/api/admin/media') {
+        return adminMedia({request, env, ctx});
       }
       if (path.startsWith('/api/')) {
         return new Response(JSON.stringify({error:'API route not found'}), {
