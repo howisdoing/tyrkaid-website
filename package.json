@@ -16,5 +16,10 @@
     "react-router-dom": "^6.30.0",
     "vite": "^6.1.0"
   },
-  "engines": {"node": ">=20"}
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "wrangler": "^4.50.0"
+  }
 }
