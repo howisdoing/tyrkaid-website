@@ -220,3 +220,25 @@ body,button,input,textarea,select{font-family:var(--font-ui);}
     height:54px;
   }
 }
+
+/* Initial boot screen: prevent DEFAULT_SETTINGS from flashing before D1 loads. */
+.site-boot{
+  min-height:180px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  color:#173747;
+  background:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;
+}
+.site-boot span{
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:3px;
+}
+.site-boot small{
+  font-size:12px;
+  color:#7a8b95;
+}
