@@ -1,0 +1,10 @@
+# Pages 项目主要在 Cloudflare Dashboard 里绑定 D1。
+# 这个文件只是给本地 Wrangler 用户参考，不必上传真实密码。
+name = "industrial-catalog"
+compatibility_date = "2026-10-01"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "industrial-catalog-db"
+database_id = "在 Cloudflare 创建 D1 后填写"

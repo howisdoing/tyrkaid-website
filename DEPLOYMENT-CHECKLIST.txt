@@ -1,0 +1,28 @@
+Cloudflare 免费版部署检查清单
+==============================
+
+[ ] 1. ZIP 已解压
+[ ] 2. 项目文件已上传到 GitHub 仓库根目录
+[ ] 3. Cloudflare 已创建 D1: industrial-catalog-db
+[ ] 4. 已把 d1/schema.sql 在 D1 Console 执行
+[ ] 5. Cloudflare Pages 已连接 GitHub
+[ ] 6. Build command = npm run build
+[ ] 7. Output directory = dist
+[ ] 8. D1 Binding 名称 = DB
+[ ] 9. Secret: ADMIN_USERNAME
+[ ] 10. Secret: ADMIN_PASSWORD
+[ ] 11. Secret: SESSION_SECRET
+[ ] 12. GitHub Fine-grained Token 只授权目标仓库
+[ ] 13. GitHub Token 权限 Contents = Read and write
+[ ] 14. Secret: GITHUB_TOKEN
+[ ] 15. Variable: GITHUB_OWNER
+[ ] 16. Variable: GITHUB_REPO
+[ ] 17. Variable: GITHUB_BRANCH = main
+[ ] 18. 重新部署 Cloudflare Pages
+[ ] 19. 测试 /products
+[ ] 20. 测试 /news
+[ ] 21. 测试 /admin 登录
+[ ] 22. 测试新增分类
+[ ] 23. 测试新增产品
+[ ] 24. 测试上传图片并等待自动部署
+[ ] 25. pages.dev 全部正常后再绑定正式域名
