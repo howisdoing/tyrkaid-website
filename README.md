@@ -1,23 +1,11 @@
-# TYRKAID Website - Clean Release
+# TYRKAID Website - Larger Logo Release
 
-这是当前精简发布版。
+本版在精简发布版基础上仅调整 Logo 比例：
 
-保留功能：
-- Cloudflare Workers + Static Assets
-- D1 产品 / 分类 / 新闻 / 网站设置
-- 后台首页控制台
-- 产品编辑“推荐到首页”
-- 图片库与 GitHub 图片上传
-- 产品多图图库
-- 网站装修
-- 导航管理
-- 吸顶页头
-- SEO robots / sitemap
-- llms / ARD 兼容
-- Logo 自适应显示
+- 桌面默认最大约 290×96px
+- Logo 视觉高度接近或略高于右侧两行宣传文字
+- 仍保持 contain，不裁切、不拉伸
+- 平板、手机自动缩小
+- 其他页面、后台、D1、SEO、图片库等不变
 
-部署：
-1. 整包覆盖 GitHub 仓库。
-2. Commit。
-3. 等待 Cloudflare 自动部署。
-4. 原有 D1、Secrets、GitHub Token 配置不用重新设置。
+部署：整包覆盖 GitHub → Commit → 等待 Cloudflare 自动部署。

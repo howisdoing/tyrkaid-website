@@ -943,3 +943,49 @@ button,
     min-height:52px;
   }
 }
+
+
+/* ===== Larger masthead logo ===== */
+.logo.logo-has-image{
+  width:min(var(--logo-max-w,290px),30vw)!important;
+  max-width:var(--logo-max-w,290px)!important;
+  min-width:220px!important;
+  height:min(var(--logo-max-h,96px),10vw)!important;
+  max-height:var(--logo-max-h,96px)!important;
+  min-height:72px!important;
+}
+.masthead-inner{
+  grid-template-columns:minmax(240px,320px) minmax(0,1fr) minmax(240px,320px)!important;
+}
+.masthead-inner>.logo{
+  justify-self:center!important;
+}
+.masthead .logo-image,
+.logo.logo-has-image .logo-image{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+@media(max-width:980px){
+  .logo.logo-has-image{
+    width:min(var(--logo-max-w,290px),34vw)!important;
+    min-width:180px!important;
+    height:min(var(--logo-max-h,96px),10.5vw)!important;
+    min-height:60px!important;
+  }
+  .masthead-inner{
+    grid-template-columns:minmax(190px,250px) minmax(0,1fr) minmax(205px,280px)!important;
+  }
+}
+@media(max-width:680px){
+  .logo.logo-has-image{
+    width:min(var(--logo-max-w,290px),70vw)!important;
+    max-width:70vw!important;
+    min-width:0!important;
+    height:min(var(--logo-max-h,96px),74px)!important;
+    min-height:56px!important;
+  }
+}
