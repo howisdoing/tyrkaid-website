@@ -7,7 +7,7 @@ import{DEMO_CATEGORIES,DEMO_PRODUCTS,DEMO_NEWS}from'./data';
 import'./style.css';
 
 const DEFAULT_SETTINGS={
- company_name_cn:'东莞市泰瑞凯德机械有限公司',company_name_en:'DONGGUAN TYRKAID MACHINERY CO., LTD.',brand_name:'TYRKAID',brand_subtitle:'MACHINERY',logo_url:'',logo_fit:'contain',logo_max_width:220,logo_max_height:72,favicon_url:'https://www.tyrkaid.com/wp-content/uploads/2024/03/cropped-TK22.png',
+ company_name_cn:'东莞市泰瑞凯德机械有限公司',company_name_en:'DONGGUAN TYRKAID MACHINERY CO., LTD.',brand_name:'TYRKAID',brand_subtitle:'MACHINERY',logo_url:'',logo_fit:'contain',logo_max_width:250,logo_max_height:82,favicon_url:'https://www.tyrkaid.com/wp-content/uploads/2024/03/cropped-TK22.png',
  header_tagline:'专注一站式橡塑胶混炼设备成套解决方案23年',header_products_text:'主营产品：开炼机、密炼机、压延机、双锥过滤出片机、胶片冷却设备',service_hotline_label:'服务热线',service_hotline_1:'0769-22985360',service_hotline_2:'135-8081-4896',hotline_sticky_enabled:true,
  hero_kicker:'橡胶 · 塑料 · 硅胶混炼设备',hero_title:'稳定设备，成就高效生产。',hero_subtitle:'Tyrkaid 专注橡胶、塑料及硅胶混炼设备的设计与制造，覆盖实验室研发、中试验证及工业化生产场景。',hero_image_url:'',hero_primary_text:'查看产品中心',hero_primary_link:'/products',hero_secondary_text:'了解 Tyrkaid',hero_secondary_link:'/about',
  home_automation_kicker:'AUTOMATION',home_automation_title:'自动化与成套解决方案',home_automation_text:'围绕混炼、上料、出片、冷却、输送与控制环节进行设备联动和流程优化，让生产节拍更稳定、操作更直观、维护更方便。',home_automation_image_url:'',

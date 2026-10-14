@@ -1,6 +1,25 @@
-# Logo 显示优化
+# 部署说明
 
-- 上传 Logo 后，前台只显示 Logo 图片，不再重复显示 TYRKAID / MACHINERY 文本。
-- Logo 容器会自动适配顶部区域，图片保持原始比例完整显示，不拉伸、不裁切。
-- 未上传 Logo 时仍保留文字版作为备用。
-- 如果刚上传后前台暂时不显示，请等待 GitHub 提交触发的 Cloudflare 自动部署完成后刷新。
+构建命令：
+npm run build
+
+输出目录：
+dist
+
+Cloudflare D1 Binding：
+DB
+
+数据库：
+industrial-catalog-db
+
+已存在的 Cloudflare Secrets / Variables 保持不变：
+- ADMIN_USERNAME
+- ADMIN_PASSWORD
+- SESSION_SECRET
+- GITHUB_TOKEN
+- GITHUB_OWNER
+- GITHUB_REPO
+- GITHUB_BRANCH
+
+更新流程：
+GitHub 整包覆盖 → Commit → Cloudflare 自动部署。
