@@ -242,3 +242,125 @@ body,button,input,textarea,select{font-family:var(--font-ui);}
   font-size:12px;
   color:#7a8b95;
 }
+
+
+/* ===== Accessibility / Lighthouse improvements ===== */
+
+/* Stronger text contrast on light backgrounds. */
+.section-title p,
+.category-card p,
+.product-card p,
+.news-card p,
+.detail-info .lead,
+.detail-info .prose,
+.article-heading p,
+.contact-panel p,
+.filters,
+.catalog-tools,
+.field small,
+.favicon-helper,
+.preview-label,
+.footer p,
+.footer span,
+.footer a {
+  color:#566a75;
+}
+
+/* Accent text needs enough contrast on white/light gray. */
+.eyebrow,
+.model-tag,
+.text-link,
+.category-card > span,
+.product-card .model,
+.product-card .product-link,
+.news-card .news-date {
+  color:#98572f;
+}
+
+/* Placeholder/input contrast. */
+input::placeholder,
+textarea::placeholder{
+  color:#667780;
+  opacity:1;
+}
+
+/* Always expose a visible keyboard focus state. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible{
+  outline:3px solid #1b66c9;
+  outline-offset:3px;
+}
+
+/* Icon-only controls must have a real touch target. */
+.mobile-toggle,
+.image-list button,
+.actions .danger,
+.setting-image-preview button,
+.lightbox > button{
+  min-width:44px;
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Product gallery thumbnails remain visually compact while touchable. */
+.gallery-thumbs .thumb{
+  min-width:72px;
+  min-height:72px;
+}
+
+/* Give adjacent touch controls breathing room. */
+.actions{
+  gap:8px;
+}
+.gallery-thumbs{
+  gap:10px;
+}
+
+/* Mobile touch targets: Lighthouse recommends roughly 44x44 CSS px. */
+@media (max-width: 680px){
+  .nav a,
+  .filters button,
+  .admin-menu button,
+  .btn,
+  .text-link,
+  .actions button,
+  .gallery-thumbs .thumb{
+    min-height:44px;
+  }
+  .nav a{
+    display:flex;
+    align-items:center;
+    padding:10px 12px;
+  }
+  .filters button{
+    padding:10px 12px;
+    margin-bottom:4px;
+  }
+  .gallery-thumbs .thumb{
+    min-width:76px;
+    width:76px;
+    height:76px;
+  }
+}
+
+
+/* ===== PageSpeed stage 2: render less below the fold ===== */
+.section,
+.footer{
+  content-visibility:auto;
+  contain-intrinsic-size:1px 700px;
+}
+.hero,
+.site-header,
+.page-head,
+.detail-wrap{
+  content-visibility:visible;
+}
+@media (max-width:680px){
+  .section{contain-intrinsic-size:1px 560px}
+}

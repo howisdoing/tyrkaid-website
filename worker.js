@@ -18,6 +18,128 @@ export default {
     const path = url.pathname;
 
     try {
+      if (path === '/llms.txt') {
+        const origin = url.origin;
+        let data = {categories:[], products:[], news:[], settings:{}};
+        try { data = await allCatalog(env.DB); } catch {}
+        const s = data.settings || {};
+        const lines = [
+          `# ${s.company_name_en || s.company_name_cn || 'TYRKAID Machinery'}`,
+          '',
+          s.footer_description || s.about_page_intro || 'Rubber, plastic and silicone mixing equipment manufacturer.',
+          '',
+          '## Main pages',
+          '',
+          `- [Home](${origin}/)`,
+          `- [Products](${origin}/products)`,
+          `- [About Us](${origin}/about)`,
+          `- [News](${origin}/news)`,
+          `- [Contact Us](${origin}/contact)`,
+          '',
+          '## Product categories',
+          ''
+        ];
+        for (const c of data.categories || []) {
+          if (c?.slug && c?.name) lines.push(`- [${c.name}](${origin}/categories/${encodeURIComponent(c.slug)})`);
+        }
+        lines.push('', '## Featured products', '');
+        for (const p of (data.products || []).filter(x=>x.featured).slice(0,12)) {
+          if (p?.slug && (p?.name || p?.model)) lines.push(`- [${p.model ? p.model + ' - ' : ''}${p.name || ''}](${origin}/products/${encodeURIComponent(p.slug)})`);
+        }
+        lines.push('', '## Latest news', '');
+        for (const n of (data.news || []).slice(0,10)) {
+          if (n?.slug && n?.title) lines.push(`- [${n.title}](${origin}/news/${encodeURIComponent(n.slug)})`);
+        }
+        lines.push('');
+        return new Response(lines.join('\n'), {
+          headers: {
+            'Content-Type': 'text/markdown; charset=utf-8',
+            'Cache-Control': 'public, max-age=3600'
+          }
+        });
+      }
+
+      if (path === '/.well-known/ai-catalog.json' || path === '/ai-catalog.json') {
+        const origin = url.origin;
+        const body = {
+          specVersion: '1.0',
+          host: {
+            displayName: 'TYRKAID Machinery',
+            documentationUrl: `${origin}/about`
+          },
+          entries: []
+        };
+        return new Response(JSON.stringify(body, null, 2), {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'public, max-age=3600'
+          }
+        });
+      }
+
+      if (path === '/.well-known/ard.json' || path === '/ard.json') {
+        const body = { entries: [] };
+        return new Response(JSON.stringify(body, null, 2), {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'public, max-age=3600'
+          }
+        });
+      }
+
+      if (path === '/robots.txt') {
+        const origin = url.origin;
+        const body = [
+          'User-agent: *',
+          'Allow: /',
+          'Disallow: /admin',
+          '',
+          `Sitemap: ${origin}/sitemap.xml`,
+          ''
+        ].join('\n');
+        return new Response(body, {
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'Cache-Control': 'public, max-age=3600'
+          }
+        });
+      }
+
+      if (path === '/sitemap.xml') {
+        const data = await allCatalog(env.DB);
+        const origin = url.origin;
+        const urls = new Set([
+          `${origin}/`,
+          `${origin}/products`,
+          `${origin}/about`,
+          `${origin}/news`,
+          `${origin}/contact`
+        ]);
+
+        for (const c of data.categories || []) {
+          if (c?.slug) urls.add(`${origin}/categories/${encodeURIComponent(c.slug)}`);
+        }
+        for (const p of data.products || []) {
+          if (p?.slug) urls.add(`${origin}/products/${encodeURIComponent(p.slug)}`);
+        }
+        for (const n of data.news || []) {
+          if (n?.slug) urls.add(`${origin}/news/${encodeURIComponent(n.slug)}`);
+        }
+
+        const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        const body = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+          `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+          [...urls].map(u => `  <url><loc>${esc(u)}</loc></url>`).join('\n') +
+          `\n</urlset>`;
+
+        return new Response(body, {
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Cache-Control': 'public, max-age=3600'
+          }
+        });
+      }
+
       if (path === '/api/catalog') {
         return request.method === 'GET' ? catalogGet({request, env, ctx}) : methodNotAllowed();
       }
@@ -44,43 +166,6 @@ export default {
           status: 404,
           headers: {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}
         });
-      }
-
-      // For HTML navigation requests, fetch the SPA shell and the public catalog/settings
-      // in parallel, then inject the current D1 data into the first HTML response.
-      // This removes the extra /api/catalog round trip on first paint and prevents stale
-      // DEFAULT_SETTINGS from flashing before the real site settings arrive.
-      const accept = request.headers.get('Accept') || '';
-      const isHtmlNavigation = request.method === 'GET' && accept.includes('text/html');
-      if (isHtmlNavigation) {
-        const [assetResponse, bootstrap] = await Promise.all([
-          env.ASSETS.fetch(request),
-          allCatalog(env.DB)
-        ]);
-        const contentType = assetResponse.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) {
-          let html = await assetResponse.text();
-          const safeJson = JSON.stringify(bootstrap)
-            .replace(/</g, '\\u003c')
-            .replace(/>/g, '\\u003e')
-            .replace(/&/g, '\\u0026')
-            .replace(/\u2028/g, '\\u2028')
-            .replace(/\u2029/g, '\\u2029');
-          const bootstrapScript = `<script>window.__TYRKAID_BOOTSTRAP__=${safeJson};</script>`;
-          const heroUrl = bootstrap?.settings?.hero_image_url;
-          const heroPreload = heroUrl
-            ? `<link rel="preload" as="image" href="${String(heroUrl).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" fetchpriority="high">`
-            : '';
-          html = html.includes('</head>')
-            ? html.replace('</head>', `${heroPreload}${bootstrapScript}</head>`)
-            : heroPreload + bootstrapScript + html;
-          const h = new Headers(assetResponse.headers);
-          h.set('Content-Type', 'text/html; charset=utf-8');
-          h.set('Cache-Control', 'no-cache, must-revalidate');
-          h.delete('Content-Length');
-          return new Response(html, {status: assetResponse.status, statusText: assetResponse.statusText, headers: h});
-        }
-        return assetResponse;
       }
 
       return env.ASSETS.fetch(request);
