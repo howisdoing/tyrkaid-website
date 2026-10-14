@@ -364,3 +364,131 @@ select:focus-visible{
 @media (max-width:680px){
   .section{contain-intrinsic-size:1px 560px}
 }
+
+
+/* ===== Accessibility final pass ===== */
+
+/* Improve contrast without changing the overall palette. */
+.hero-content>p,
+.hero-small,
+.section-title p,
+.category-card p,
+.product-card p,
+.news-card p,
+.detail-info .lead,
+.detail-info .prose,
+.article-heading p,
+.article-text,
+.contact-panel p,
+.about-grid p,
+.footer p,
+.footer span,
+.footer a,
+.catalog-tools,
+.filters,
+.preview-label,
+.field small,
+.favicon-helper{
+  color:#4f626d;
+}
+
+.hero .hero-content>p{
+  color:#e0e8eb;
+}
+.hero-small{
+  color:#bfd0d8;
+}
+
+.eyebrow,
+.model-tag,
+.text-link,
+.category-card>span,
+.product-card .model,
+.product-card .product-link,
+.news-card .news-date{
+  color:#8a4827;
+}
+
+/* Make form controls and secondary text easier to read. */
+input,
+textarea,
+select{
+  color:#213b48;
+}
+input::placeholder,
+textarea::placeholder{
+  color:#5f717b;
+  opacity:1;
+}
+
+/* Ensure all interactive elements meet practical touch-target guidance. */
+button,
+.btn,
+.nav a,
+.text-link,
+.filters button,
+.admin-menu button,
+.actions button,
+.gallery-thumbs .thumb,
+.setting-image-preview button,
+.image-list button{
+  min-height:44px;
+}
+
+.mobile-toggle,
+.actions .danger,
+.lightbox>button,
+.image-list button,
+.setting-image-preview button{
+  min-width:44px;
+  min-height:44px;
+}
+
+/* Avoid tightly packed touch targets. */
+.nav,
+.actions,
+.gallery-thumbs,
+.hero-actions,
+.admin-menu{
+  row-gap:8px;
+}
+.actions,
+.gallery-thumbs{
+  column-gap:10px;
+}
+
+/* Give inline links enough tappable padding without visibly changing layout. */
+.text-link{
+  display:inline-flex;
+  align-items:center;
+  padding:8px 2px;
+}
+
+/* Mobile refinements: keep targets separated and easy to tap. */
+@media (max-width:680px){
+  .nav{
+    gap:4px;
+  }
+  .nav a{
+    min-height:46px;
+    padding:11px 14px;
+  }
+  .filters button{
+    min-height:46px;
+    padding:11px 14px;
+    margin-bottom:6px;
+  }
+  .gallery-thumbs .thumb{
+    width:78px;
+    min-width:78px;
+    height:78px;
+  }
+  .floating-hotline a{
+    min-height:44px;
+    display:flex;
+    align-items:center;
+  }
+  .admin-menu button{
+    min-height:46px;
+  }
+}
