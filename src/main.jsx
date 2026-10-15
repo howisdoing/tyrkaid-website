@@ -59,19 +59,179 @@ function Logo({settings:given}){
    : <><span className="logo-mark tyrkaid-mark">{(s.brand_name||'T').slice(0,1)}</span><span className="logo-type">{s.brand_name||'TYRKAID'}<small>{s.brand_subtitle||'MACHINERY'}</small></span></>}
  </Link>
 }
-function Header(){const[open,setOpen]=useState(false),loc=useLocation(),{navigation,settings}=useData();useEffect(()=>setOpen(false),[loc.pathname]);const nav=[...navigation].filter(x=>x.visible!==false).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));const phones=[settings.service_hotline_1,settings.service_hotline_2].filter(Boolean);return <><header className="site-header"><div className="masthead"><div className="container masthead-inner"><Logo/><div className="masthead-copy"><strong>{settings.header_tagline}</strong><span>{settings.header_products_text}</span></div><div className="masthead-hotline"><Phone size={28}/><div><span>{settings.service_hotline_label||'服务热线'}</span>{phones.map(p=><a key={p} href={'tel:'+p.replace(/[^0-9+]/g,'')}>{p}</a>)}</div></div></div></div><div className="topbar"><div className="container topbar-inner"><button className="mobile-toggle" type="button" aria-label={open?"关闭导航菜单":"打开导航菜单"} aria-expanded={open} aria-controls="main-navigation" onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button><nav id="main-navigation" className={open?'nav open':'nav'}>{nav.map(n=><NavLink key={n.id||n.path} to={n.path}>{n.label}</NavLink>)}</nav></div></div></header>{loc.pathname==='/'&&settings.hotline_sticky_enabled!==false&&phones.length>0&&<div className="floating-hotline"><Phone size={19}/><div><small>{settings.service_hotline_label||'服务热线'}</small>{phones.map(p=><a key={p} href={'tel:'+p.replace(/[^0-9+]/g,'')}>{p}</a>)}</div></div>}</>}
-function Footer(){const{settings}=useData();return <footer className="footer"><div className="container footer-grid"><div><Logo/><p>{settings.footer_description}</p></div><div><h4>快速导航</h4><Link to="/products">产品中心</Link><Link to="/news">公司新闻</Link><Link to="/about">关于我们</Link></div><div><h4>联系方式</h4>{settings.contact_email&&<a href={'mailto:'+settings.contact_email}>{settings.contact_email}</a>}{settings.contact_phone&&<a href={'tel:'+settings.contact_phone.replace(/\s/g,'')}>{settings.contact_phone}</a>}<span>{settings.contact_address}</span></div></div><div className="container footer-bottom">© {new Date().getFullYear()} {settings.footer_copyright}</div></footer>}
-function Layout({children}){const{loading,error}=useData();return <><Header/>{error&&<div className="error-bar">{error}</div>}{loading?<main className="container loading">加载中…</main>:children}<Footer/></>}
+function Header(){
+ const[open,setOpen]=useState(false),loc=useLocation(),{navigation,settings}=useData();
+ useEffect(()=>setOpen(false),[loc.pathname]);
+ const nav=[...navigation].filter(x=>x.visible!==false).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+ const phone=settings.service_hotline_1;
+ return <header className="site-header karee-header">
+  <div className="container karee-nav-shell">
+   <Logo/>
+   <button className="mobile-toggle" type="button" aria-label={open?"关闭导航菜单":"打开导航菜单"} aria-expanded={open} aria-controls="main-navigation" onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button>
+   <nav id="main-navigation" className={open?'nav karee-nav open':'nav karee-nav'}>
+    {nav.map(n=><NavLink key={n.id||n.path} to={n.path}>{n.label}</NavLink>)}
+   </nav>
+   <div className="karee-header-actions">
+    {phone&&<a className="header-phone" href={'tel:'+phone.replace(/[^0-9+]/g,'')}><Phone size={15}/><span>{phone}</span></a>}
+   </div>
+  </div>
+ </header>
+}function Footer(){
+ const{settings}=useData();
+ return <footer className="footer karee-footer">
+  <div className="container karee-footer-main">
+   <div className="karee-footer-brand"><Logo/><p>{settings.footer_description}</p></div>
+   <div><h4>产品与公司</h4><Link to="/products">产品中心</Link><Link to="/about">关于我们</Link><Link to="/news">公司新闻</Link></div>
+   <div><h4>联系方式</h4>{settings.contact_phone&&<a href={'tel:'+settings.contact_phone.replace(/\s/g,'')}>{settings.contact_phone}</a>}{settings.contact_email&&<a href={'mailto:'+settings.contact_email}>{settings.contact_email}</a>}<span>{settings.contact_address}</span></div>
+  </div>
+  <div className="container footer-bottom">© {new Date().getFullYear()} {settings.footer_copyright}</div>
+ </footer>
+}function Layout({children}){const{loading,error}=useData();return <><Header/>{error&&<div className="error-bar">{error}</div>}{loading?<main className="container loading">加载中…</main>:children}<Footer/></>}
 function Art(){return <div className="equipment-art"><svg viewBox="0 0 500 370"><ellipse cx="258" cy="323" rx="173" ry="16" fill="#b9c5cb" opacity=".35"/><rect x="93" y="157" width="310" height="142" rx="12" fill="#38596a"/><rect x="109" y="174" width="195" height="105" rx="7" fill="#d9e2e3"/><rect x="321" y="176" width="64" height="92" rx="5" fill="#1d3949"/><path d="M152 157V90h197v67" fill="#c9d5d8"/><rect x="171" y="78" width="158" height="62" rx="7" fill="#3d5f6f"/></svg><span>产品图片</span></div>}
 function Visual({item,priority=false}){const src=imageOf(item);return src?<img className="product-img" src={src} alt={item.name} loading={priority?'eager':'lazy'} decoding="async" fetchPriority={priority?'high':'auto'}/>:<Art/>}
-function ProductCard({item,priority=false}){return <Link className="product-card" to={'/products/'+item.slug}><div className="product-media"><Visual item={item} priority={priority}/></div><div className="product-card-body"><span className="eyebrow">型号 {item.model}</span><h3>{item.name}</h3><p>{item.summary}</p><span className="text-link">查看详情 <ArrowRight size={16}/></span></div></Link>}
-function NewsCard({item}){return <Link className="news-card" to={'/news/'+item.slug}><div className="news-cover">{item.cover_url?<img src={item.cover_url} alt={item.title} loading="lazy" decoding="async"/>:<div className="news-placeholder"><span>TYRKAID</span><strong>NEWS</strong></div>}</div><div className="news-body"><span className="eyebrow">{shortDate(item.published_at)}</span><h3>{item.title}</h3><p>{item.excerpt}</p></div></Link>}
-function Home(){const{categories,products,news,settings}=useData();return <main><section className="hero tyrkaid-hero"><div className="container hero-grid"><div className="hero-content"><span className="hero-kicker">{settings.hero_kicker}</span><h1>{settings.hero_title}</h1><p>{settings.hero_subtitle}</p><div className="hero-actions">{settings.hero_primary_text&&<Link className="btn btn-accent" to={settings.hero_primary_link||'/products'}>{settings.hero_primary_text} <ArrowRight size={18}/></Link>}{settings.hero_secondary_text&&<Link className="btn btn-outline-light" to={settings.hero_secondary_link||'/about'}>{settings.hero_secondary_text}</Link>}</div></div><div className="hero-visual">{settings.hero_image_url?<img className="hero-custom-image" src={settings.hero_image_url} alt={settings.hero_title} loading="eager" decoding="async" fetchPriority="high"/>:<Art/>}</div></div></section><section className="strength-strip"><div className="container strength-grid"><div><strong>17+</strong><span>年技术积累</span></div><div><strong>1-stop</strong><span>一站式配套服务</span></div><div><strong>24/7</strong><span>技术支持</span></div><div><strong>98%</strong><span>准时交付率</span></div></div></section><section className="section"><div className="container"><div className="section-title"><span className="eyebrow">产品系列</span><h2>橡胶与高分子材料加工设备</h2><p>围绕混炼、压延、切胶及辅助生产环节，构建从实验室到生产线的设备体系。</p></div><div className="category-grid">{categories.map((c,i)=><Link className="category-card" key={c.id} to={'/categories/'+c.slug}><div className="category-number">{String(i+1).padStart(2,'0')}</div><h3>{c.name}</h3><p>{c.summary}</p><span>查看设备 <ArrowRight size={16}/></span></Link>)}</div></div></section><section className="section section-muted"><div className="container"><div className="section-title centered-title"><span className="eyebrow">为什么选择 TYRKAID</span><h2>为稳定生产而设计</h2></div><div className="advantage-grid"><div className="advantage-card"><span>01</span><h3>耐用与可靠</h3><p>从机架结构到关键部件均以长期稳定运行为目标。</p></div><div className="advantage-card"><span>02</span><h3>易学易用</h3><p>清晰的控制逻辑与实用的人机布局，降低操作门槛。</p></div><div className="advantage-card"><span>03</span><h3>安全导向设计</h3><p>将安全防护、联锁与过程控制融入设备设计。</p></div></div></div></section><section className="section"><div className="container"><div className="section-heading-row"><div className="section-title"><span className="eyebrow">推荐设备</span><h2>精选产品</h2></div><Link className="text-link" to="/products">查看全部 <ArrowRight size={16}/></Link></div><div className="product-grid">{products.filter(x=>x.featured).slice(0,6).map(x=><ProductCard key={x.id} item={x}/>)}</div></div></section><section className="section about-band"><div className="container about-band-grid"><div><span className="eyebrow">关于我们</span><h2>{settings.about_eyebrow||settings.company_name_en}</h2></div><div><p>{(settings.about_body||'').split('\n\n')[0]}</p><Link className="text-link" to="/about">了解更多 <ArrowRight size={16}/></Link></div></div></section><section className="section"><div className="container"><div className="section-heading-row"><div className="section-title"><span className="eyebrow">公司新闻</span><h2>企业动态与技术资讯</h2></div><Link className="text-link" to="/news">全部新闻 <ArrowRight size={16}/></Link></div><div className="news-grid">{news.slice(0,3).map(x=><NewsCard key={x.id} item={x}/>)}</div></div></section></main>}
-function PageHead({title,text}){return <div className="page-head"><div className="container"><h1>{title}</h1>{text&&<p>{text}</p>}</div></div>}
-function Products(){const{categories,products}=useData();const[q,setQ]=useState(''),[cat,setCat]=useState('all');const list=products.filter(p=>(cat==='all'||String(p.category_id)===cat)&&(`${p.model} ${p.name} ${p.summary}`.toLowerCase().includes(q.toLowerCase())));return <Layout><PageHead title="产品中心" text="浏览产品分类、型号与技术资料，快速找到适合您工艺需求的设备。"/><section className="section"><div className="container product-browser"><aside className="filters"><h3>产品分类</h3><button className={cat==='all'?'selected':''} onClick={()=>setCat('all')}>全部产品</button>{categories.map(c=><button key={c.id} className={cat===String(c.id)?'selected':''} onClick={()=>setCat(String(c.id))}>{c.name}</button>)}</aside><div className="catalog"><div className="catalog-tools"><div className="search"><Search size={17}/><input placeholder="搜索型号或产品名称" value={q} onChange={e=>setQ(e.target.value)}/></div><span>{list.length} 个产品</span></div><div className="product-grid">{list.map((p,i)=><ProductCard key={p.id} item={p} priority={i<3}/>)}</div></div></div></section></Layout>}
-function Category(){const{slug}=useParams(),{categories,products}=useData();const c=categories.find(x=>x.slug===slug);if(!c)return <NotFound/>;return <Layout><PageHead title={c.name} text={c.summary}/><section className="section"><div className="container product-grid">{products.filter(x=>x.category_id===c.id).map(p=><ProductCard key={p.id} item={p}/>)}</div></section></Layout>}
-function ProductDetail(){const{slug}=useParams(),{products,categories}=useData();const p=products.find(x=>x.slug===slug);const[active,setActive]=useState(0),[zoom,setZoom]=useState(false);if(!p)return <NotFound/>;const c=categories.find(x=>x.id===p.category_id),imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];const safeActive=Math.min(active,Math.max(imgs.length-1,0));return <Layout><main className="container detail-wrap"><div className="detail-grid"><div className="product-gallery"><div className="gallery-main" onClick={()=>imgs[safeActive]&&setZoom(true)}>{imgs[safeActive]?<img src={imgs[safeActive]} alt={`${p.name} - 图片 ${safeActive+1}`} loading="eager" decoding="async" fetchPriority="high"/>:<Art/>}{imgs[safeActive]&&<span className="zoom-hint"><ZoomIn size={15}/> 放大查看</span>}</div>{imgs.length>0&&<div className="gallery-thumbs" aria-label="产品图片缩略图">{imgs.map((x,i)=><button type="button" key={`${x}-${i}`} className={'thumb '+(i===safeActive?'active':'')} onClick={()=>setActive(i)} aria-label={`查看第 ${i+1} 张产品图`}><img src={x} alt={`${p.name} 缩略图 ${i+1}`} loading="lazy" decoding="async"/></button>)}</div>}</div><div className="detail-info"><span className="model-tag">型号 {p.model}</span><h1>{p.name}</h1><p className="lead">{p.summary}</p><div className="detail-divider"/><h3>{c?.name}</h3><p className="prose">{p.description}</p></div></div><section className="spec-section"><h2>技术参数</h2><div className="spec-table">{Object.entries(p.specs||{}).map(([k,v])=><div className="spec-row" key={k}><strong>{k}</strong><span>{v}</span></div>)}</div></section>{zoom&&imgs[safeActive]&&<div className="lightbox" onClick={()=>setZoom(false)}><button type="button" aria-label="关闭大图"><X/></button><img src={imgs[safeActive]} alt={p.name} decoding="async"/></div>}</main></Layout>}
-function News(){const{news}=useData();return <Layout><PageHead title="公司新闻" text="了解 Tyrkaid 企业动态、设备更新与技术资讯。"/><section className="section"><div className="container news-grid">{news.map(n=><NewsCard key={n.id} item={n}/>)}</div></section></Layout>}
+function ProductCard({item,priority=false}){
+ return <Link className="product-card karee-product-card" to={'/products/'+item.slug}>
+  <div className="product-media"><Visual item={item} priority={priority}/></div>
+  <div className="product-card-body">
+   <span className="karee-overline">INDUSTRIAL EQUIPMENT · {item.model}</span>
+   <h3>{item.name}</h3>
+   <p>{item.summary}</p>
+   <span className="karee-view-link">查看详情 <ArrowRight size={15}/></span>
+  </div>
+ </Link>
+}function NewsCard({item}){
+ return <Link className="news-card karee-news-card" to={'/news/'+item.slug}>
+  <div className="news-cover">{item.cover_url?<img src={item.cover_url} alt={item.title} loading="lazy" decoding="async"/>:<div className="news-placeholder"><span>TYRKAID</span><strong>NEWS</strong></div>}</div>
+  <div className="news-body"><span className="karee-overline">{shortDate(item.published_at)}</span><h3>{item.title}</h3><p>{item.excerpt}</p><span className="karee-view-link">阅读全文 <ArrowRight size={15}/></span></div>
+ </Link>
+}function Home(){
+ const{categories,products,news,settings}=useData();
+ const featured=products.filter(x=>x.featured).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).slice(0,6);
+ const categoryImage=c=>{
+  const p=products.find(x=>Number(x.category_id)===Number(c.id)&&imageOf(x));
+  return p?imageOf(p):'';
+ };
+ return <main className="karee-home">
+  <section className="karee-hero">
+   <div className="container karee-hero-grid">
+    <div className="karee-hero-copy">
+     <span className="karee-overline">{settings.hero_kicker||'TYRKAID MACHINERY'}</span>
+     <h1>{settings.hero_title}</h1>
+     <p>{settings.hero_subtitle}</p>
+     <div className="karee-hero-actions">
+      {settings.hero_primary_text&&<Link className="karee-btn primary" to={settings.hero_primary_link||'/products'}>{settings.hero_primary_text}<ArrowRight size={16}/></Link>}
+      {settings.hero_secondary_text&&<Link className="karee-btn secondary" to={settings.hero_secondary_link||'/about'}>{settings.hero_secondary_text}</Link>}
+     </div>
+    </div>
+    <div className="karee-hero-media">{settings.hero_image_url?<img src={settings.hero_image_url} alt={settings.hero_title} loading="eager" decoding="async" fetchPriority="high"/>:<Art/>}</div>
+   </div>
+  </section>
+
+  <section className="karee-section">
+   <div className="container">
+    <div className="karee-section-head"><span className="karee-overline">OUR COLLECTIONS</span><h2>按产品系列浏览</h2></div>
+    <div className="karee-category-grid">
+     {categories.map(c=><Link className="karee-category-card" key={c.id} to={'/categories/'+c.slug}>
+      <div className="karee-category-image">{categoryImage(c)?<img src={categoryImage(c)} alt={c.name} loading="lazy" decoding="async"/>:<Art/>}</div>
+      <div><h3>{c.name}</h3><span>查看系列 <ArrowRight size={15}/></span></div>
+     </Link>)}
+    </div>
+   </div>
+  </section>
+
+  <section className="karee-section karee-selected">
+   <div className="container">
+    <div className="karee-section-head split"><div><span className="karee-overline">SELECTED PRODUCTS</span><h2>精选设备</h2></div><Link className="karee-text-link" to="/products">全部产品 <ArrowRight size={15}/></Link></div>
+    <div className="karee-product-grid">{featured.map((p,i)=><ProductCard key={p.id} item={p} priority={i<2}/>)}</div>
+   </div>
+  </section>
+
+  <section className="karee-brand-band">
+   <div className="container karee-brand-grid">
+    <div><span className="karee-overline">ABOUT TYRKAID</span><h2>{settings.about_title}</h2><p>{(settings.about_body||'').split(/\n\n+/)[0]}</p><Link className="karee-text-link light" to="/about">了解我们 <ArrowRight size={15}/></Link></div>
+    <div className="karee-brand-media">{settings.about_image_url?<img src={settings.about_image_url} alt={settings.about_title} loading="lazy" decoding="async"/>:<Art/>}</div>
+   </div>
+  </section>
+
+  <section className="karee-section">
+   <div className="container">
+    <div className="karee-section-head split"><div><span className="karee-overline">LATEST NEWS</span><h2>公司动态</h2></div><Link className="karee-text-link" to="/news">全部新闻 <ArrowRight size={15}/></Link></div>
+    <div className="karee-news-grid">{news.slice(0,3).map(n=><NewsCard key={n.id} item={n}/>)}</div>
+   </div>
+  </section>
+ </main>
+}function PageHead({title,text,kicker='TYRKAID'}){
+ return <div className="page-head karee-page-head"><div className="container"><span className="karee-overline">{kicker}</span><h1>{title}</h1>{text&&<p>{text}</p>}</div></div>
+}function Products(){
+ const{categories,products}=useData();
+ const[q,setQ]=useState(''),[cat,setCat]=useState('all');
+ const list=products.filter(p=>(cat==='all'||String(p.category_id)===cat)&&(`${p.model} ${p.name} ${p.summary}`.toLowerCase().includes(q.toLowerCase())));
+ return <Layout>
+  <PageHead kicker="PRODUCT CENTER" title="产品中心" text="浏览设备系列、型号与技术资料，快速找到适合工艺需求的方案。"/>
+  <section className="karee-section">
+   <div className="container karee-products-layout">
+    <aside className="karee-filter-panel">
+     <h3>产品分类</h3>
+     <button className={cat==='all'?'selected':''} onClick={()=>setCat('all')}>全部产品</button>
+     {categories.map(c=><button key={c.id} className={cat===String(c.id)?'selected':''} onClick={()=>setCat(String(c.id))}>{c.name}</button>)}
+    </aside>
+    <div className="karee-catalog">
+     <div className="karee-catalog-tools"><div className="search"><Search size={17}/><input placeholder="搜索型号或产品名称" value={q} onChange={e=>setQ(e.target.value)}/></div><span>{list.length} 个产品</span></div>
+     <div className="karee-product-grid">{list.map((p,i)=><ProductCard key={p.id} item={p} priority={i<3}/>)}</div>
+    </div>
+   </div>
+  </section>
+ </Layout>
+}function Category(){
+ const{slug}=useParams(),{categories,products}=useData();
+ const c=categories.find(x=>x.slug===slug);
+ if(!c)return <NotFound/>;
+ const list=products.filter(x=>Number(x.category_id)===Number(c.id));
+ return <Layout><PageHead kicker="PRODUCT RANGE" title={c.name} text={c.summary}/><section className="karee-section"><div className="container karee-product-grid">{list.map((p,i)=><ProductCard key={p.id} item={p} priority={i<3}/>)}</div></section></Layout>
+}function ProductDetail(){
+ const{slug}=useParams(),{products,categories}=useData();
+ const p=products.find(x=>x.slug===slug);
+ const[active,setActive]=useState(0),[zoom,setZoom]=useState(false);
+ if(!p)return <NotFound/>;
+ const c=categories.find(x=>Number(x.id)===Number(p.category_id));
+ const imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];
+ const safeActive=Math.min(active,Math.max(imgs.length-1,0));
+ return <Layout>
+  <main className="karee-detail">
+   <section className="container karee-detail-top">
+    <div className="karee-gallery">
+     <div className="karee-gallery-main" onClick={()=>imgs[safeActive]&&setZoom(true)}>
+      {imgs[safeActive]?<img src={imgs[safeActive]} alt={`${p.name} - 图片 ${safeActive+1}`} loading="eager" decoding="async" fetchPriority="high"/>:<Art/>}
+      {imgs[safeActive]&&<span className="karee-zoom"><ZoomIn size={15}/> 查看大图</span>}
+     </div>
+     {imgs.length>0&&<div className="karee-gallery-thumbs">{imgs.map((x,i)=><button type="button" key={`${x}-${i}`} className={i===safeActive?'active':''} onClick={()=>setActive(i)} aria-label={`查看第 ${i+1} 张产品图`}><img src={x} alt={`${p.name} 缩略图 ${i+1}`} loading="lazy" decoding="async"/></button>)}</div>}
+     {imgs.length>1&&<div className="karee-image-count">{safeActive+1} / {imgs.length} images</div>}
+    </div>
+    <div className="karee-detail-copy">
+     <span className="karee-overline">{c?.name||'PRODUCT'}</span>
+     <h1>{p.name}</h1>
+     <p className="karee-detail-lead">{p.summary}</p>
+     <div className="karee-detail-meta">
+      <div><span>产品系列</span><strong>{c?.name||'—'}</strong></div>
+      <div><span>产品型号</span><strong>{p.model||'—'}</strong></div>
+      <div><span>产品支持</span><strong>可按工艺需求配置</strong></div>
+     </div>
+     <a className="karee-detail-jump" href="#overview">查看产品详情 <ArrowRight size={15}/></a>
+    </div>
+   </section>
+
+   <nav className="karee-detail-tabs container"><a href="#overview">产品概览</a><a href="#specifications">技术参数</a>{imgs.length>1&&<a href="#product-images">产品图片</a>}</nav>
+
+   <section id="overview" className="karee-detail-section"><div className="container karee-detail-narrow"><span className="karee-overline">ABOUT THIS PRODUCT</span><h2>产品概览</h2>{(p.description||p.summary||'').split(/\n\n+/).map((x,i)=><p key={i}>{x}</p>)}</div></section>
+
+   <section id="specifications" className="karee-detail-section muted"><div className="container karee-detail-narrow"><span className="karee-overline">PRODUCT INFORMATION</span><h2>技术参数</h2><div className="karee-spec-table">{Object.entries(p.specs||{}).map(([k,v])=><div key={k}><span>{k}</span><strong>{v}</strong></div>)}</div></div></section>
+
+   {imgs.length>1&&<section id="product-images" className="karee-detail-section"><div className="container"><span className="karee-overline">EXPLORE THE DETAILS</span><h2>更多产品图片</h2><p className="karee-detail-intro">从不同角度查看设备结构与细节。</p><div className="karee-detail-images">{imgs.slice(1).map((x,i)=><button type="button" key={x+i} onClick={()=>{setActive(i+1);setZoom(true)}}><img src={x} alt={`${p.name} 详情图片 ${i+2}`} loading="lazy" decoding="async"/></button>)}</div></div></section>}
+
+   {zoom&&imgs[safeActive]&&<div className="lightbox" onClick={()=>setZoom(false)}><button type="button" aria-label="关闭大图"><X/></button><img src={imgs[safeActive]} alt={p.name} decoding="async"/></div>}
+  </main>
+ </Layout>
+}function News(){const{news}=useData();return <Layout><PageHead title="公司新闻" text="了解 Tyrkaid 企业动态、设备更新与技术资讯。"/><section className="section"><div className="container news-grid">{news.map(n=><NewsCard key={n.id} item={n}/>)}</div></section></Layout>}
 function Article(){const{slug}=useParams(),{news}=useData();const n=news.find(x=>x.slug===slug);if(!n)return <NotFound/>;return <Layout><article className="container article"><div className="article-heading"><span className="eyebrow">{shortDate(n.published_at)}</span><h1>{n.title}</h1><p>{n.excerpt}</p></div>{n.cover_url&&<img className="article-cover" src={n.cover_url} alt={n.title} loading="lazy" decoding="async"/>}<div className="article-text">{n.body}</div></article></Layout>}
 function About(){const{settings}=useData();return <Layout><PageHead title={settings.about_page_title} text={settings.about_page_intro}/><section className="section"><div className="container about-grid"><div><span className="eyebrow">{settings.about_eyebrow}</span><h2>{settings.about_title}</h2>{(settings.about_body||'').split(/\n\n+/).map((p,i)=><p key={i}>{p}</p>)}</div>{settings.about_image_url?<img className="about-custom-image" src={settings.about_image_url} alt={settings.about_title} loading="lazy" decoding="async"/>:<Art/>}</div></section><section className="section section-muted"><div className="container advantage-grid"><div className="advantage-card"><span>01</span><h3>制造经验</h3><p>长期深耕橡胶与高分子材料加工设备，持续积累制造与应用经验。</p></div><div className="advantage-card"><span>02</span><h3>应用支持</h3><p>根据材料、产能及工艺需求提供设备选型与配置建议。</p></div><div className="advantage-card"><span>03</span><h3>服务能力</h3><p>围绕安装、调试、操作与维护提供持续技术支持。</p></div></div></section></Layout>}
 function Contact(){const{settings}=useData();return <Layout><PageHead title={settings.contact_page_title} text={settings.contact_page_intro}/><section className="section"><div className="container contact-grid"><div className="contact-panel"><h2>联系信息</h2>{settings.contact_address&&<p><strong>地址</strong><br/>{settings.contact_address}</p>}{settings.contact_phone&&<p><strong>电话</strong><br/><a href={'tel:'+settings.contact_phone.replace(/\s/g,'')}>{settings.contact_phone}</a></p>}{settings.contact_email&&<p><strong>邮箱</strong><br/><a href={'mailto:'+settings.contact_email}>{settings.contact_email}</a></p>}{settings.contact_whatsapp&&<p><strong>WhatsApp</strong><br/>{settings.contact_whatsapp}</p>}</div><div className="contact-panel"><h2>{settings.contact_support_title}</h2><p>{settings.contact_support_body}</p><Link className="btn btn-accent" to="/products">进入产品中心 <ArrowRight size={17}/></Link></div></div></section></Layout>}
