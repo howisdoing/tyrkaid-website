@@ -375,6 +375,61 @@ function CategoryImageEditor({value,onChange,previewMap,upload,slug}){
  </div>
 }
 
+function NewsCoverPicker({open,onClose,onChoose,current}){
+ const[items,setItems]=useState([]),[loading,setLoading]=useState(false),[query,setQuery]=useState('');
+ useEffect(()=>{
+  if(!open)return;
+  setLoading(true);
+  api('/api/admin/media')
+   .then(d=>setItems((d.items||[]).filter(x=>x.folder==='news'||x.folder==='site'||x.folder==='products')))
+   .catch(()=>setItems([]))
+   .finally(()=>setLoading(false));
+ },[open]);
+ if(!open)return null;
+ const visible=items.filter(x=>x.url!==current&&(!query||x.name.toLowerCase().includes(query.toLowerCase())||x.path.toLowerCase().includes(query.toLowerCase())));
+ return <div className="media-picker-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
+  <div className="media-picker-dialog">
+   <div className="media-picker-head"><div><span className="eyebrow">媒体库</span><h3>选择新闻封面</h3></div><button type="button" onClick={onClose}><X size={18}/></button></div>
+   <div className="media-picker-tools"><div className="search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索媒体库图片"/></div></div>
+   {loading?<div className="empty">正在读取媒体库…</div>:visible.length?<div className="media-picker-grid">{visible.map(x=><button type="button" key={x.path} onClick={()=>{onChoose(x.url);onClose()}}>
+    <div className="media-picker-thumb"><img src={'/api/admin/media?file='+encodeURIComponent(x.path)} alt={x.name}/></div>
+    <small title={x.name}>{x.name}</small>
+    <span>选择</span>
+   </button>)}</div>:<div className="empty">媒体库里暂无可选图片。</div>}
+   <div className="media-picker-footer"><button type="button" className="btn btn-ghost" onClick={onClose}>取消</button></div>
+  </div>
+ </div>
+}
+
+function NewsCoverEditor({value,onChange,previewMap,upload}){
+ const[picker,setPicker]=useState(false);
+ const doUpload=files=>{
+  if(!files?.length)return;
+  upload(files,urls=>{if(urls?.[0])onChange(urls[0])},'news');
+ };
+ return <div className="field news-cover-editor">
+  <span>新闻封面图片</span>
+  <p className="news-cover-help">可以上传新图片，也可以直接从媒体库选择。封面会用于新闻列表和新闻详情页。</p>
+  {value?<div className="news-cover-preview">
+   <div className="news-cover-image"><img src={previewMap[value]||value} alt="新闻封面预览"/></div>
+   <div className="news-cover-actions">
+    <label className="upload compact-upload"><Upload size={15}/> 上传替换<input type="file" accept="image/*" onChange={e=>{doUpload(e.target.files);e.target.value=''}}/></label>
+    <button type="button" className="btn btn-ghost" onClick={()=>setPicker(true)}><ImageIcon size={15}/> 从媒体库替换</button>
+    <button type="button" className="danger-button" onClick={()=>onChange('')}><Trash2 size={14}/> 移除封面</button>
+   </div>
+  </div>:<div className="news-cover-empty">
+   <ImageIcon size={28}/>
+   <strong>还没有新闻封面</strong>
+   <p>上传一张新图片，或者从媒体库选择已有图片。</p>
+   <div>
+    <label className="upload compact-upload"><Upload size={15}/> 上传封面图片<input type="file" accept="image/*" onChange={e=>{doUpload(e.target.files);e.target.value=''}}/></label>
+    <button type="button" className="btn btn-ghost" onClick={()=>setPicker(true)}><ImageIcon size={15}/> 从媒体库选择</button>
+   </div>
+  </div>}
+  <NewsCoverPicker open={picker} onClose={()=>setPicker(false)} onChoose={onChange} current={value}/>
+ </div>
+}
+
 function SpecsEditor({value,onChange}){
  const normalize=v=>{
   if(Array.isArray(v)){
@@ -467,7 +522,15 @@ function SpecsEditor({value,onChange}){
  </div>
 }
 
-function Admin(){const[checked,setChecked]=useState(false),[ok,setOk]=useState(false),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[err,setErr]=useState('');useEffect(()=>{api('/api/auth/session').then(x=>setOk(x.authenticated)).catch(()=>{}).finally(()=>setChecked(true))},[]);async function login(e){e.preventDefault();try{await api('/api/auth/login',{method:'POST',body:JSON.stringify({username,password})});setOk(true);setErr('')}catch(e){setErr(e.message)}}if(!checked)return <div className="admin-shell">正在验证登录状态…</div>;if(!ok)return <div className="admin-shell"><form className="admin-login" onSubmit={login}><Logo/><ShieldCheck size={34}/><h1>后台登录</h1><p>仅限授权的网站管理员登录。</p>{err&&<div className="form-error">{err}</div>}<Field label="用户名" value={username} onChange={setUsername} required/><Field label="密码" type="password" value={password} onChange={setPassword} required/><button className="btn btn-accent">登录 <ArrowRight size={17}/></button><Link to="/">← 返回网站</Link></form></div>;return <Dashboard onLogout={()=>setOk(false)}/>}
+function Admin(){const[checked,setChecked]=useState(false),[ok,setOk]=useState(false),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[err,setErr]=useState('');
+ useEffect(()=>{
+  let timer;
+  const expired=()=>{setOk(false);setErr('登录已过期，请重新登录。')};
+  window.addEventListener('admin-auth-expired',expired);
+  api('/api/auth/session').then(x=>{setOk(!!x.authenticated);if(x.authenticated){timer=setInterval(()=>api('/api/auth/session').catch(()=>{}),30*60*1000)}}).catch(()=>setOk(false)).finally(()=>setChecked(true));
+  return()=>{window.removeEventListener('admin-auth-expired',expired);if(timer)clearInterval(timer)}
+ },[]);
+ async function login(e){e.preventDefault();try{await api('/api/auth/login',{method:'POST',body:JSON.stringify({username,password})});setOk(true);setErr('');api('/api/auth/session').catch(()=>{})}catch(e){setErr(e.message)}}if(!checked)return <div className="admin-shell">正在验证登录状态…</div>;if(!ok)return <div className="admin-shell"><form className="admin-login" onSubmit={login}><Logo/><ShieldCheck size={34}/><h1>后台登录</h1><p>仅限授权的网站管理员登录。</p>{err&&<div className="form-error">{err}</div>}<Field label="用户名" value={username} onChange={setUsername} required/><Field label="密码" type="password" value={password} onChange={setPassword} required/><button className="btn btn-accent">登录 <ArrowRight size={17}/></button><Link to="/">← 返回网站</Link></form></div>;return <Dashboard onLogout={()=>setOk(false)}/>}
 function ImageUploader({label,value,previewMap,onUploaded,upload,folder='site'}){return <div className="field"><span>{label}</span><div className="upload"><Upload size={17}/> 选择并上传图片<input type="file" accept="image/*" onChange={e=>{upload(e.target.files,(urls)=>onUploaded(urls[0]),folder);e.target.value=''}}/></div>{value&&<div className="setting-image-preview"><img src={previewMap[value]||value}/><button type="button" onClick={()=>onUploaded('')}><Trash2 size={15}/> 移除</button></div>}</div>}
 const HOME_SECTION_META={
  hero:{name:'首页 Banner',color:'slate',description:'首屏大图、标题和按钮'},
@@ -884,7 +947,7 @@ const blank={categories:{name:'',slug:'',summary:'',image_url:'',sort_order:0},p
  <div className="product-media-editor-title"><span className="eyebrow">商品图片</span><h2>产品图片管理</h2><p>参考电商商品后台：主图负责列表与顶部展示，详情图用于产品详情页下方内容。</p></div>
  <ProductImageGroupEditor title="主图 / 商品图" help="第一张自动作为产品封面图；用于首页推荐、产品中心缩略图和产品详情顶部轮播。" images={editing.images||[]} onChange={v=>update('images',v)} onUpload={files=>uploadField(files,'images','products')} previewMap={previewMap} mainMode/>
  <ProductImageGroupEditor title="详情图" help="只显示在产品详情页下方，适合设备细节、结构、尺寸、应用场景等图片。" images={editing.detail_images||[]} onChange={v=>update('detail_images',v)} onUpload={files=>uploadField(files,'detail_images','products')} previewMap={previewMap}/>
-</div></>}{tab==='news'&&<><Field label="新闻标题" value={editing.title} onChange={v=>update('title',v)} required/><Field label="URL 标识（Slug）" value={editing.slug} onChange={v=>update('slug',v)}/><Field label="摘要" value={editing.excerpt} onChange={v=>update('excerpt',v)} multiline/><Field label="新闻正文" value={editing.body} onChange={v=>update('body',v)} multiline rows={12}/><label className="field">发布状态<select value={editing.status} onChange={e=>update('status',e.target.value)}><option value="draft">草稿</option><option value="published">已发布</option></select></label><Field label="发布日期" type="date" value={(editing.published_at||'').slice(0,10)} onChange={v=>update('published_at',v+'T00:00:00Z')}/><div className="field">封面图片<div className="upload"><Upload size={17}/> 上传封面<input type="file" accept="image/*" onChange={e=>{uploadField(e.target.files,'cover_url','news');e.target.value=''}}/></div>{editing.cover_url&&<div className="image-list"><div><img src={previewMap[editing.cover_url]||editing.cover_url}/></div></div>}</div></>}<button disabled={busy} className="btn btn-accent"><Save size={17}/>{busy?'处理中…':'保存'}</button></form>:<div className="admin-table">{list.length?<table><thead><tr><th>名称</th><th>信息</th><th>操作</th></tr></thead><tbody>{list.map(x=><tr key={x.id}><td>{tab==='products'?<div className="admin-product-name"><div className="admin-product-thumb">{imageOf(x)?<img src={imageOf(x)} alt={x.name}/>:<span>无图</span>}</div><div><strong>{x.model||x.name}</strong><small>{x.name}</small></div></div>:tab==='categories'?<div className="admin-product-name"><div className="admin-product-thumb">{x.image_url?<img src={x.image_url} alt={x.name}/>:<span>无图</span>}</div><div><strong>{x.name}</strong><small>{x.slug}</small></div></div>:<strong>{x.model||x.label||x.name||x.title}</strong>}</td><td>{tab==='navigation'?`${x.path} · ${x.visible?'显示':'隐藏'}`:(x.name||x.slug||x.status)}</td><td className="actions"><button onClick={()=>setEditing(structuredClone(x))}>编辑</button><button className="danger" type="button" aria-label={`删除 ${x.model||x.label||x.name||x.title||"此项"}`} title="删除" onClick={()=>del(x)}><Trash2 size={15}/></button></td></tr>)}</tbody></table>:<div className="empty">暂无内容。</div>}</div>}</section></div>}
+</div></>}{tab==='news'&&<><Field label="新闻标题" value={editing.title} onChange={v=>update('title',v)} required/><Field label="URL 标识（Slug）" value={editing.slug} onChange={v=>update('slug',v)}/><Field label="摘要" value={editing.excerpt} onChange={v=>update('excerpt',v)} multiline/><Field label="新闻正文" value={editing.body} onChange={v=>update('body',v)} multiline rows={12}/><label className="field">发布状态<select value={editing.status} onChange={e=>update('status',e.target.value)}><option value="draft">草稿</option><option value="published">已发布</option></select></label><Field label="发布日期" type="date" value={(editing.published_at||'').slice(0,10)} onChange={v=>update('published_at',v+'T00:00:00Z')}/><NewsCoverEditor value={editing.cover_url||''} onChange={v=>update('cover_url',v)} previewMap={previewMap} upload={upload}/></>}<button disabled={busy} className="btn btn-accent"><Save size={17}/>{busy?'处理中…':'保存'}</button></form>:<div className="admin-table">{list.length?<table><thead><tr><th>名称</th><th>信息</th><th>操作</th></tr></thead><tbody>{list.map(x=><tr key={x.id}><td>{tab==='products'?<div className="admin-product-name"><div className="admin-product-thumb">{imageOf(x)?<img src={imageOf(x)} alt={x.name}/>:<span>无图</span>}</div><div><strong>{x.model||x.name}</strong><small>{x.name}</small></div></div>:tab==='categories'?<div className="admin-product-name"><div className="admin-product-thumb">{x.image_url?<img src={x.image_url} alt={x.name}/>:<span>无图</span>}</div><div><strong>{x.name}</strong><small>{x.slug}</small></div></div>:<strong>{x.model||x.label||x.name||x.title}</strong>}</td><td>{tab==='navigation'?`${x.path} · ${x.visible?'显示':'隐藏'}`:(x.name||x.slug||x.status)}</td><td className="actions"><button onClick={()=>setEditing(structuredClone(x))}>编辑</button><button className="danger" type="button" aria-label={`删除 ${x.model||x.label||x.name||x.title||"此项"}`} title="删除" onClick={()=>del(x)}><Trash2 size={15}/></button></td></tr>)}</tbody></table>:<div className="empty">暂无内容。</div>}</div>}</section></div>}
 function RoutedApp(){const{booted}=useData();if(!booted)return <div className="site-boot" role="status" aria-live="polite"><span>TYRKAID</span><small>正在加载网站内容…</small></div>;return <Routes><Route path="/" element={<><Header/><Home/><Footer/></>}/><Route path="/products" element={<Products/>}/><Route path="/products/:slug" element={<ProductDetail/>}/><Route path="/categories/:slug" element={<Category/>}/><Route path="/news" element={<News/>}/><Route path="/news/:slug" element={<Article/>}/><Route path="/about" element={<About/>}/><Route path="/contact" element={<Contact/>}/><Route path="/admin" element={<Admin/>}/><Route path="*" element={<NotFound/>}/></Routes>}
 function App(){return <DataProvider><RoutedApp/></DataProvider>}
 createRoot(document.getElementById('root')).render(<BrowserRouter><App/></BrowserRouter>);
