@@ -9,7 +9,7 @@ import'./style.css';
 const DEFAULT_SETTINGS={
  company_name_cn:'东莞市泰瑞凯德机械有限公司',company_name_en:'DONGGUAN TYRKAID MACHINERY CO., LTD.',brand_name:'TYRKAID',brand_subtitle:'MACHINERY',logo_url:'',logo_fit:'contain',logo_max_width:290,logo_max_height:96,favicon_url:'https://www.tyrkaid.com/wp-content/uploads/2024/03/cropped-TK22.png',
  header_tagline:'专注一站式橡塑胶混炼设备成套解决方案23年',header_products_text:'主营产品：开炼机、密炼机、压延机、双锥过滤出片机、胶片冷却设备',service_hotline_label:'服务热线',service_hotline_1:'0769-22985360',service_hotline_2:'135-8081-4896',hotline_sticky_enabled:true,
- hero_kicker:'橡胶 · 塑料 · 硅胶混炼设备',hero_title:'稳定设备，成就高效生产。',hero_subtitle:'Tyrkaid 专注橡胶、塑料及硅胶混炼设备的设计与制造，覆盖实验室研发、中试验证及工业化生产场景。',hero_image_url:'',hero_primary_text:'查看产品中心',hero_primary_link:'/products',hero_secondary_text:'了解 Tyrkaid',hero_secondary_link:'/about',
+ hero_kicker:'橡胶 · 塑料 · 硅胶混炼设备',hero_title:'稳定设备，成就高效生产。',hero_subtitle:'Tyrkaid 专注橡胶、塑料及硅胶混炼设备的设计与制造，覆盖实验室研发、中试验证及工业化生产场景。',hero_image_url:'',hero_layout:'split-right',hero_image_fit:'contain',hero_text_align:'left',hero_text_color:'dark',hero_overlay_opacity:42,hero_image_position:'center',hero_primary_text:'查看产品中心',hero_primary_link:'/products',hero_secondary_text:'了解 Tyrkaid',hero_secondary_link:'/about',
  home_automation_kicker:'AUTOMATION',home_automation_title:'自动化与成套解决方案',home_automation_text:'围绕混炼、上料、出片、冷却、输送与控制环节进行设备联动和流程优化，让生产节拍更稳定、操作更直观、维护更方便。',home_automation_image_url:'',
  about_page_title:'关于 Tyrkaid',about_page_intro:'来自中国东莞的橡胶、塑料与硅胶加工设备制造商。',about_eyebrow:'DONGGUAN TYRKAID MACHINERY CO., LTD.',about_title:'专注橡胶、塑料与硅胶混炼技术。',about_body:'Tyrkaid 专注于橡胶、塑料及硅胶混炼设备的设计、研发与制造。产品覆盖开放式炼胶机、密炼机、压延设备、切胶设备及相关辅助系统，可满足实验室研发、中试验证与工业化生产等不同场景。\n\n公司位于中国制造业重镇广东东莞。我们将制造经验与工程应用相结合，从设备结构、工艺配置到维护便利性持续优化，重点关注运行稳定性、生产效率、节能表现与长期可维护性。\n\n针对不同材料体系、产能规模和工艺要求，Tyrkaid 可提供针对性的设备配置建议与应用支持，帮助客户从选型到落地更高效地推进项目。',about_image_url:'',
  contact_page_title:'联系我们',contact_page_intro:'Dongguan Tyrkaid Machinery Co., Ltd.',contact_address:'中国广东省东莞市高埗镇高埗中心中路1号1栋101室',contact_phone:'+86-13806015010',contact_email:'sales@tyrkaid.com',contact_whatsapp:'',contact_wechat_label:'微信',contact_wechat_qr_url:'',contact_support_title:'产品支持',contact_support_body:'您可以在产品中心查看设备分类、具体型号、技术说明及产品图片；公司动态与技术内容请前往公司新闻栏目。',
@@ -159,20 +159,24 @@ function ProductCard({item,priority=false}){
  const sections=Array.isArray(settings.home_sections)&&settings.home_sections.length?settings.home_sections:fallback;
  const renderSection=(sec,index)=>{
   if(sec.enabled===false)return null;
-  if(sec.type==='hero')return <section className="karee-hero" key={sec.id||index}>
-   <div className="container karee-hero-grid">
-    <div className="karee-hero-copy">
-     <span className="karee-overline">{sec.kicker||settings.hero_kicker||'TYRKAID MACHINERY'}</span>
-     <h1>{sec.title||settings.hero_title}</h1>
-     <p>{sec.text||settings.hero_subtitle}</p>
-     <div className="karee-hero-actions">
-      {settings.hero_primary_text&&<Link className="karee-btn primary" to={settings.hero_primary_link||'/products'}>{settings.hero_primary_text}<ArrowRight size={16}/></Link>}
-      {settings.hero_secondary_text&&<Link className="karee-btn secondary" to={settings.hero_secondary_link||'/about'}>{settings.hero_secondary_text}</Link>}
-     </div>
+  if(sec.type==='hero'){
+   const layout=settings.hero_layout||'split-right',overlay=layout==='overlay',imageOnly=layout==='image-only';
+   return <section className={'karee-hero editable-hero hero-layout-'+layout+' hero-text-'+(settings.hero_text_align||'left')+' hero-color-'+(settings.hero_text_color||'dark')} key={sec.id||index} style={{'--hero-overlay':Math.max(0,Math.min(80,Number(settings.hero_overlay_opacity)||42))/100}}>
+    {overlay&&settings.hero_image_url&&<div className="hero-bg-layer"><img src={settings.hero_image_url} alt="" loading="eager" decoding="async" fetchPriority="high" style={{objectFit:settings.hero_image_fit||'cover',objectPosition:settings.hero_image_position||'center'}}/><span/></div>}
+    <div className="container karee-hero-grid">
+     {!imageOnly&&<div className="karee-hero-copy">
+      <span className="karee-overline">{sec.kicker||settings.hero_kicker||'TYRKAID MACHINERY'}</span>
+      <h1>{sec.title||settings.hero_title}</h1>
+      <p>{sec.text||settings.hero_subtitle}</p>
+      <div className="karee-hero-actions">
+       {settings.hero_primary_text&&<Link className="karee-btn primary" to={settings.hero_primary_link||'/products'}>{settings.hero_primary_text}<ArrowRight size={16}/></Link>}
+       {settings.hero_secondary_text&&<Link className="karee-btn secondary" to={settings.hero_secondary_link||'/about'}>{settings.hero_secondary_text}</Link>}
+      </div>
+     </div>}
+     {!overlay&&<div className="karee-hero-media">{settings.hero_image_url?<img src={settings.hero_image_url} alt={sec.title||settings.hero_title} loading="eager" decoding="async" fetchPriority="high" style={{objectFit:settings.hero_image_fit||'contain',objectPosition:settings.hero_image_position||'center'}}/>:<Art/>}</div>}
     </div>
-    <div className="karee-hero-media">{settings.hero_image_url?<img src={settings.hero_image_url} alt={sec.title||settings.hero_title} loading="eager" decoding="async" fetchPriority="high"/>:<Art/>}</div>
-   </div>
-  </section>;
+   </section>;
+  }
 
   if(sec.type==='categories')return <section className={'karee-section home-dynamic-section home-tone-'+(sec.tone||'blue')} key={sec.id||index}>
    <div className="container">
@@ -505,9 +509,53 @@ function SiteSettingsEditor({value,onChange,onSave,busy,previewMap,upload,naviga
    </div>}
 
    {t==='hero'&&<div className="customizer-panel-card panel-hero">
-    <div className="customizer-panel-title"><span>03</span><div><h3>首页 Banner</h3><p>首屏图片、标题、说明和按钮。</p></div></div>
-    <div className="customizer-two-col"><div><Field label="顶部小标题" value={s.hero_kicker} onChange={v=>set('hero_kicker',v)}/><Field label="Banner 主标题" value={s.hero_title} onChange={v=>set('hero_title',v)}/><Field label="Banner 说明" value={s.hero_subtitle} onChange={v=>set('hero_subtitle',v)} multiline rows={4}/></div><ImageUploader label="Banner 图片" value={s.hero_image_url} previewMap={previewMap} onUploaded={v=>set('hero_image_url',v)} upload={upload}/></div>
-    <div className="form-grid"><Field label="主按钮文字" value={s.hero_primary_text} onChange={v=>set('hero_primary_text',v)}/><Field label="主按钮链接" value={s.hero_primary_link} onChange={v=>set('hero_primary_link',v)}/><Field label="次按钮文字" value={s.hero_secondary_text} onChange={v=>set('hero_secondary_text',v)}/><Field label="次按钮链接" value={s.hero_secondary_link} onChange={v=>set('hero_secondary_link',v)}/></div>
+    <div className="customizer-panel-title"><span>03</span><div><h3>首页 Banner</h3><p>文字和图片完全独立编辑，可自由切换布局。</p></div></div>
+    <div className="banner-layout-controls">
+     <label className="field">Banner 布局
+      <select value={s.hero_layout||'split-right'} onChange={e=>set('hero_layout',e.target.value)}>
+       <option value="split-right">左文字 · 右图片</option>
+       <option value="split-left">左图片 · 右文字</option>
+       <option value="overlay">文字压在图片上</option>
+       <option value="image-only">纯图片</option>
+      </select>
+     </label>
+     <label className="field">图片显示方式
+      <select value={s.hero_image_fit||'contain'} onChange={e=>set('hero_image_fit',e.target.value)}>
+       <option value="contain">完整显示</option>
+       <option value="cover">铺满裁切</option>
+      </select>
+     </label>
+     <label className="field">图片焦点
+      <select value={s.hero_image_position||'center'} onChange={e=>set('hero_image_position',e.target.value)}>
+       <option value="center">居中</option><option value="left center">靠左</option><option value="right center">靠右</option><option value="center top">靠上</option><option value="center bottom">靠下</option>
+      </select>
+     </label>
+     <label className="field">文字对齐
+      <select value={s.hero_text_align||'left'} onChange={e=>set('hero_text_align',e.target.value)}>
+       <option value="left">左对齐</option><option value="center">居中</option>
+      </select>
+     </label>
+     <label className="field">文字颜色
+      <select value={s.hero_text_color||'dark'} onChange={e=>set('hero_text_color',e.target.value)}>
+       <option value="dark">深色</option><option value="light">白色</option>
+      </select>
+     </label>
+     {s.hero_layout==='overlay'&&<Field label="图片遮罩深度（0–80）" type="number" value={s.hero_overlay_opacity??42} onChange={v=>set('hero_overlay_opacity',Math.max(0,Math.min(80,Number(v)||0)))}/>}
+    </div>
+    <div className="customizer-two-col">
+     <div className="banner-text-editor">
+      <span className="editor-mini-title">文字内容</span>
+      <Field label="顶部小标题" value={s.hero_kicker} onChange={v=>set('hero_kicker',v)}/>
+      <Field label="Banner 主标题" value={s.hero_title} onChange={v=>set('hero_title',v)}/>
+      <Field label="Banner 说明" value={s.hero_subtitle} onChange={v=>set('hero_subtitle',v)} multiline rows={4}/>
+      <div className="form-grid"><Field label="主按钮文字" value={s.hero_primary_text} onChange={v=>set('hero_primary_text',v)}/><Field label="主按钮链接" value={s.hero_primary_link} onChange={v=>set('hero_primary_link',v)}/><Field label="次按钮文字" value={s.hero_secondary_text} onChange={v=>set('hero_secondary_text',v)}/><Field label="次按钮链接" value={s.hero_secondary_link} onChange={v=>set('hero_secondary_link',v)}/></div>
+     </div>
+     <div className="banner-image-editor">
+      <span className="editor-mini-title">图片内容</span>
+      <ImageUploader label="Banner 图片" value={s.hero_image_url} previewMap={previewMap} onUploaded={v=>set('hero_image_url',v)} upload={upload}/>
+      <p className="banner-editor-help">图片和文字互不绑定。换图片不会改变文字，改文字也不会影响图片。</p>
+     </div>
+    </div>
    </div>}
 
    {t==='home'&&<HomeSectionBuilder sections={sections} onChange={v=>set('home_sections',v)} previewMap={previewMap} upload={upload}/>}
