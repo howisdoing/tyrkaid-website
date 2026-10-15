@@ -385,23 +385,166 @@ function SpecsEditor({value,onChange}){
 }
 function Admin(){const[checked,setChecked]=useState(false),[ok,setOk]=useState(false),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[err,setErr]=useState('');useEffect(()=>{api('/api/auth/session').then(x=>setOk(x.authenticated)).catch(()=>{}).finally(()=>setChecked(true))},[]);async function login(e){e.preventDefault();try{await api('/api/auth/login',{method:'POST',body:JSON.stringify({username,password})});setOk(true);setErr('')}catch(e){setErr(e.message)}}if(!checked)return <div className="admin-shell">正在验证登录状态…</div>;if(!ok)return <div className="admin-shell"><form className="admin-login" onSubmit={login}><Logo/><ShieldCheck size={34}/><h1>后台登录</h1><p>仅限授权的网站管理员登录。</p>{err&&<div className="form-error">{err}</div>}<Field label="用户名" value={username} onChange={setUsername} required/><Field label="密码" type="password" value={password} onChange={setPassword} required/><button className="btn btn-accent">登录 <ArrowRight size={17}/></button><Link to="/">← 返回网站</Link></form></div>;return <Dashboard onLogout={()=>setOk(false)}/>}
 function ImageUploader({label,value,previewMap,onUploaded,upload,folder='site'}){return <div className="field"><span>{label}</span><div className="upload"><Upload size={17}/> 选择并上传图片<input type="file" accept="image/*" onChange={e=>{upload(e.target.files,(urls)=>onUploaded(urls[0]),folder);e.target.value=''}}/></div>{value&&<div className="setting-image-preview"><img src={previewMap[value]||value}/><button type="button" onClick={()=>onUploaded('')}><Trash2 size={15}/> 移除</button></div>}</div>}
-function SiteSettingsEditor({value,onChange,onSave,busy,previewMap,upload,navigation}){const s={...DEFAULT_SETTINGS,...value};const set=(k,v)=>onChange({...s,[k]:v});return <form className="visual-editor" onSubmit={e=>{e.preventDefault();onSave(s)}}><div className="visual-editor-fields"><div className="editor-title"><div><span className="eyebrow">网站装修</span><h2>可视化编辑网站内容</h2></div><button className="btn btn-accent" disabled={busy}><Save size={17}/>{busy?'保存中…':'立即保存'}</button></div><div className="settings-group"><h3>公司与品牌</h3><div className="form-grid"><Field label="公司中文名称" value={s.company_name_cn} onChange={v=>set('company_name_cn',v)}/><Field label="公司英文名称" value={s.company_name_en} onChange={v=>set('company_name_en',v)}/><Field label="品牌名称" value={s.brand_name} onChange={v=>set('brand_name',v)}/><Field label="品牌副标题" value={s.brand_subtitle} onChange={v=>set('brand_subtitle',v)}/></div><ImageUploader label="Logo" value={s.logo_url} previewMap={previewMap} onUploaded={v=>set('logo_url',v)} upload={upload}/>
-<div className="logo-display-controls">
-  <label className="field">Logo 显示方式
-    <select value={s.logo_fit||'contain'} onChange={e=>set('logo_fit',e.target.value)}>
-      <option value="contain">适应（完整显示）</option>
-      <option value="frame">全框（尽量放大完整显示）</option>
-      <option value="cover">填充（可能轻微裁切）</option>
-      <option value="center">居中（原比例居中）</option>
-      <option value="fill">拉伸（铺满区域）</option>
-    </select>
-  </label>
-  <div className="form-grid">
-    <Field label="Logo 最大宽度（px）" type="number" value={s.logo_max_width||220} onChange={v=>set('logo_max_width',Math.max(140,Math.min(Number(v)||220,300)))}/>
-    <Field label="Logo 最大高度（px）" type="number" value={s.logo_max_height||72} onChange={v=>set('logo_max_height',Math.max(48,Math.min(Number(v)||72,92)))}/>
+function CustomizerSection({id,title,description,open,setOpen,children}){
+ const expanded=open===id;
+ return <section className={'customizer-section '+(expanded?'is-open':'')}>
+  <button type="button" className="customizer-section-toggle" onClick={()=>setOpen(expanded?'':id)} aria-expanded={expanded}>
+   <div><strong>{title}</strong>{description&&<small>{description}</small>}</div><span>{expanded?'−':'+'}</span>
+  </button>
+  {expanded&&<div className="customizer-section-body">{children}</div>}
+ </section>
+}
+function SiteSettingsEditor({value,onChange,onSave,busy,previewMap,upload,navigation}){
+ const s={...DEFAULT_SETTINGS,...value};
+ const set=(k,v)=>onChange({...s,[k]:v});
+ const[open,setOpen]=useState('brand');
+ const[previewMode,setPreviewMode]=useState('desktop');
+ const navPreview=[...navigation].filter(x=>x.visible!==false).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).slice(0,6);
+ return <form className="site-customizer" onSubmit={e=>{e.preventDefault();onSave(s)}}>
+  <div className="customizer-topbar">
+   <div><span className="eyebrow">网站装修</span><h2>主题自定义</h2><p>像 Shopify / WordPress 自定义器一样，按区域修改并实时预览。</p></div>
+   <div className="customizer-save">
+    <span>{busy?'正在保存…':'修改会自动保存到 D1'}</span>
+    <button className="btn btn-accent" disabled={busy}><Save size={16}/>{busy?'保存中…':'保存'}</button>
+   </div>
   </div>
-  <small className="setting-help">建议桌面端宽 200–240px、高 64–78px。系统会自动限制范围，避免挤压宣传语与服务热线。</small>
-</div><ImageUploader label="网站小图标（Favicon / 浏览器标签图标）" value={s.favicon_url} previewMap={previewMap} onUploaded={v=>set('favicon_url',v)} upload={upload}/><div className="favicon-helper"><small>建议上传正方形 PNG/SVG，推荐 256×256 或 512×512。</small></div><div className="form-grid"><Field label="顶部主宣传语" value={s.header_tagline} onChange={v=>set('header_tagline',v)}/><Field label="服务热线标题" value={s.service_hotline_label} onChange={v=>set('service_hotline_label',v)}/></div><Field label="主营产品说明" value={s.header_products_text} onChange={v=>set('header_products_text',v)} multiline/><div className="form-grid"><Field label="服务热线 1" value={s.service_hotline_1} onChange={v=>set('service_hotline_1',v)}/><Field label="服务热线 2" value={s.service_hotline_2} onChange={v=>set('service_hotline_2',v)}/></div><label className="check-line"><input type="checkbox" checked={s.hotline_sticky_enabled!==false} onChange={e=>set('hotline_sticky_enabled',e.target.checked)}/> 首页滚动时持续显示服务热线</label></div><div className="settings-group"><h3>首页 Banner</h3><Field label="顶部小标题" value={s.hero_kicker} onChange={v=>set('hero_kicker',v)}/><Field label="Banner 主标题" value={s.hero_title} onChange={v=>set('hero_title',v)}/><Field label="Banner 说明" value={s.hero_subtitle} onChange={v=>set('hero_subtitle',v)} multiline rows={4}/><ImageUploader label="Banner 图片" value={s.hero_image_url} previewMap={previewMap} onUploaded={v=>set('hero_image_url',v)} upload={upload}/><div className="form-grid"><Field label="主按钮文字" value={s.hero_primary_text} onChange={v=>set('hero_primary_text',v)}/><Field label="主按钮链接" value={s.hero_primary_link} onChange={v=>set('hero_primary_link',v)}/><Field label="次按钮文字" value={s.hero_secondary_text} onChange={v=>set('hero_secondary_text',v)}/><Field label="次按钮链接" value={s.hero_secondary_link} onChange={v=>set('hero_secondary_link',v)}/></div></div><div className="settings-group"><h3>关于我们</h3><div className="form-grid"><Field label="页面标题" value={s.about_page_title} onChange={v=>set('about_page_title',v)}/><Field label="页面简介" value={s.about_page_intro} onChange={v=>set('about_page_intro',v)}/></div><Field label="关于我们大标题（白色）" value={s.about_eyebrow} onChange={v=>set('about_eyebrow',v)}/><Field label="正文标题" value={s.about_title} onChange={v=>set('about_title',v)}/><Field label="关于我们正文" value={s.about_body} onChange={v=>set('about_body',v)} multiline rows={10}/><ImageUploader label="关于我们图片" value={s.about_image_url} previewMap={previewMap} onUploaded={v=>set('about_image_url',v)} upload={upload}/></div><div className="settings-group"><h3>联系我们</h3><div className="form-grid"><Field label="页面标题" value={s.contact_page_title} onChange={v=>set('contact_page_title',v)}/><Field label="页面简介" value={s.contact_page_intro} onChange={v=>set('contact_page_intro',v)}/><Field label="联系电话" value={s.contact_phone} onChange={v=>set('contact_phone',v)}/><Field label="联系邮箱" value={s.contact_email} onChange={v=>set('contact_email',v)}/><Field label="WhatsApp" value={s.contact_whatsapp} onChange={v=>set('contact_whatsapp',v)}/><Field label="微信显示名称" value={s.contact_wechat_label||'微信'} onChange={v=>set('contact_wechat_label',v)}/></div><ImageUploader label="微信二维码（用于全站联系方式悬浮窗）" value={s.contact_wechat_qr_url} previewMap={previewMap} onUploaded={v=>set('contact_wechat_qr_url',v)} upload={upload}/><Field label="公司地址" value={s.contact_address} onChange={v=>set('contact_address',v)} multiline/><Field label="右侧模块标题" value={s.contact_support_title} onChange={v=>set('contact_support_title',v)}/><Field label="右侧模块说明" value={s.contact_support_body} onChange={v=>set('contact_support_body',v)} multiline/></div><div className="settings-group"><h3>页脚</h3><Field label="页脚公司简介" value={s.footer_description} onChange={v=>set('footer_description',v)} multiline/><Field label="版权文字" value={s.footer_copyright} onChange={v=>set('footer_copyright',v)}/></div><button className="btn btn-accent" disabled={busy}><Save size={17}/>{busy?'保存中…':'立即保存'}</button></div><aside className="live-preview"><div className="preview-label"><Eye size={16}/> 实时预览</div><div className="preview-browser"><div className="preview-header preview-masthead"><div className={'preview-logo '+(s.logo_url?'has-image logo-fit-'+(s.logo_fit||'contain'):'')}>{s.logo_url?<img src={previewMap[s.logo_url]||s.logo_url}/>:<><b>{s.brand_name?.slice(0,1)||'T'}</b><span>{s.brand_name}<small>{s.brand_subtitle}</small></span></>}</div><div className="preview-header-copy"><b>{s.header_tagline}</b><small>{s.header_products_text}</small></div><div className="preview-hotline"><span>{s.service_hotline_label||'服务热线'}</span><b>{s.service_hotline_1}</b></div></div><div className="preview-nav-row">{[...navigation].filter(x=>x.visible!==false).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).slice(0,6).map(n=><span key={n.id||n.path}>{n.label}</span>)}</div><div className="preview-hero"><div><small>{s.hero_kicker}</small><h3>{s.hero_title}</h3><p>{s.hero_subtitle}</p><button type="button">{s.hero_primary_text||'按钮'}</button></div>{s.hero_image_url?<img src={previewMap[s.hero_image_url]||s.hero_image_url}/>:<div className="preview-placeholder"><ImageIcon/></div>}</div><div className="preview-about"><div><small>关于我们</small><h4>{s.about_title}</h4><p>{(s.about_body||'').slice(0,110)}{(s.about_body||'').length>110?'…':''}</p></div>{s.about_image_url?<img src={previewMap[s.about_image_url]||s.about_image_url}/>:<div className="preview-placeholder"><ImageIcon/></div>}</div><div className="preview-contact"><h4>{s.contact_page_title}</h4><p>{s.contact_address}</p><p>{s.contact_phone} · {s.contact_email}</p></div></div></aside></form>}
+
+  <div className="customizer-workspace">
+   <aside className="customizer-sidebar">
+    <div className="customizer-sidebar-head"><strong>页面设置</strong><small>选择一个区域进行编辑</small></div>
+
+    <CustomizerSection id="brand" title="公司与品牌" description="公司名、Logo、Favicon" open={open} setOpen={setOpen}>
+     <div className="form-grid">
+      <Field label="公司中文名称" value={s.company_name_cn} onChange={v=>set('company_name_cn',v)}/>
+      <Field label="公司英文名称" value={s.company_name_en} onChange={v=>set('company_name_en',v)}/>
+      <Field label="品牌名称" value={s.brand_name} onChange={v=>set('brand_name',v)}/>
+      <Field label="品牌副标题" value={s.brand_subtitle} onChange={v=>set('brand_subtitle',v)}/>
+     </div>
+     <ImageUploader label="Logo" value={s.logo_url} previewMap={previewMap} onUploaded={v=>set('logo_url',v)} upload={upload}/>
+     <div className="customizer-subcard">
+      <label className="field">Logo 显示方式
+       <select value={s.logo_fit||'contain'} onChange={e=>set('logo_fit',e.target.value)}>
+        <option value="contain">适应（完整显示）</option>
+        <option value="frame">全框（尽量放大）</option>
+        <option value="cover">填充（可能裁切）</option>
+        <option value="center">原比例居中</option>
+        <option value="fill">拉伸铺满</option>
+       </select>
+      </label>
+      <div className="form-grid">
+       <Field label="最大宽度（px）" type="number" value={s.logo_max_width||220} onChange={v=>set('logo_max_width',Math.max(140,Math.min(Number(v)||220,300)))}/>
+       <Field label="最大高度（px）" type="number" value={s.logo_max_height||72} onChange={v=>set('logo_max_height',Math.max(48,Math.min(Number(v)||72,96)))}/>
+      </div>
+     </div>
+     <ImageUploader label="浏览器图标 Favicon" value={s.favicon_url} previewMap={previewMap} onUploaded={v=>set('favicon_url',v)} upload={upload}/>
+    </CustomizerSection>
+
+    <CustomizerSection id="header" title="顶部 Header" description="宣传语、服务热线、二维码" open={open} setOpen={setOpen}>
+     <Field label="顶部主宣传语" value={s.header_tagline} onChange={v=>set('header_tagline',v)}/>
+     <Field label="主营产品说明" value={s.header_products_text} onChange={v=>set('header_products_text',v)} multiline rows={3}/>
+     <div className="form-grid">
+      <Field label="服务热线标题" value={s.service_hotline_label} onChange={v=>set('service_hotline_label',v)}/>
+      <Field label="服务热线 1" value={s.service_hotline_1} onChange={v=>set('service_hotline_1',v)}/>
+      <Field label="服务热线 2" value={s.service_hotline_2} onChange={v=>set('service_hotline_2',v)}/>
+      <Field label="微信显示名称" value={s.contact_wechat_label||'微信'} onChange={v=>set('contact_wechat_label',v)}/>
+     </div>
+     <ImageUploader label="顶部 / 悬浮窗微信二维码" value={s.contact_wechat_qr_url} previewMap={previewMap} onUploaded={v=>set('contact_wechat_qr_url',v)} upload={upload}/>
+     <label className="customizer-switch"><span><strong>悬浮联系方式</strong><small>在前台页面持续显示联系方式入口</small></span><input type="checkbox" checked={s.hotline_sticky_enabled!==false} onChange={e=>set('hotline_sticky_enabled',e.target.checked)}/></label>
+    </CustomizerSection>
+
+    <CustomizerSection id="hero" title="首页 Banner" description="首屏文字、图片和按钮" open={open} setOpen={setOpen}>
+     <Field label="顶部小标题" value={s.hero_kicker} onChange={v=>set('hero_kicker',v)}/>
+     <Field label="Banner 主标题" value={s.hero_title} onChange={v=>set('hero_title',v)}/>
+     <Field label="Banner 说明" value={s.hero_subtitle} onChange={v=>set('hero_subtitle',v)} multiline rows={4}/>
+     <ImageUploader label="Banner 图片" value={s.hero_image_url} previewMap={previewMap} onUploaded={v=>set('hero_image_url',v)} upload={upload}/>
+     <div className="customizer-subcard">
+      <strong>按钮</strong>
+      <div className="form-grid">
+       <Field label="主按钮文字" value={s.hero_primary_text} onChange={v=>set('hero_primary_text',v)}/>
+       <Field label="主按钮链接" value={s.hero_primary_link} onChange={v=>set('hero_primary_link',v)}/>
+       <Field label="次按钮文字" value={s.hero_secondary_text} onChange={v=>set('hero_secondary_text',v)}/>
+       <Field label="次按钮链接" value={s.hero_secondary_link} onChange={v=>set('hero_secondary_link',v)}/>
+      </div>
+     </div>
+    </CustomizerSection>
+
+    <CustomizerSection id="home" title="首页内容" description="产品系列、推荐产品和内容结构" open={open} setOpen={setOpen}>
+     <div className="customizer-info-card">
+      <strong>产品系列</strong><p>首页产品系列自动读取“产品分类”，图片自动使用该分类下的产品图。</p>
+     </div>
+     <div className="customizer-info-card">
+      <strong>精选设备</strong><p>在“产品 → 编辑产品”中勾选“首页推荐”，并用“显示排序”控制顺序。</p>
+     </div>
+     <div className="customizer-info-card">
+      <strong>新闻</strong><p>首页新闻自动读取已发布的最新内容。</p>
+     </div>
+    </CustomizerSection>
+
+    <CustomizerSection id="about" title="关于我们" description="页面标题、正文和图片" open={open} setOpen={setOpen}>
+     <div className="form-grid">
+      <Field label="页面标题" value={s.about_page_title} onChange={v=>set('about_page_title',v)}/>
+      <Field label="页面简介" value={s.about_page_intro} onChange={v=>set('about_page_intro',v)}/>
+     </div>
+     <Field label="品牌眉题 / 英文标题" value={s.about_eyebrow} onChange={v=>set('about_eyebrow',v)}/>
+     <Field label="正文标题" value={s.about_title} onChange={v=>set('about_title',v)}/>
+     <Field label="关于我们正文" value={s.about_body} onChange={v=>set('about_body',v)} multiline rows={10}/>
+     <ImageUploader label="关于我们图片" value={s.about_image_url} previewMap={previewMap} onUploaded={v=>set('about_image_url',v)} upload={upload}/>
+    </CustomizerSection>
+
+    <CustomizerSection id="contact" title="联系我们" description="电话、邮箱、地址与支持信息" open={open} setOpen={setOpen}>
+     <div className="form-grid">
+      <Field label="页面标题" value={s.contact_page_title} onChange={v=>set('contact_page_title',v)}/>
+      <Field label="页面简介" value={s.contact_page_intro} onChange={v=>set('contact_page_intro',v)}/>
+      <Field label="联系电话" value={s.contact_phone} onChange={v=>set('contact_phone',v)}/>
+      <Field label="联系邮箱" value={s.contact_email} onChange={v=>set('contact_email',v)}/>
+      <Field label="WhatsApp" value={s.contact_whatsapp} onChange={v=>set('contact_whatsapp',v)}/>
+     </div>
+     <Field label="公司地址" value={s.contact_address} onChange={v=>set('contact_address',v)} multiline rows={3}/>
+     <div className="customizer-subcard">
+      <strong>右侧支持模块</strong>
+      <Field label="标题" value={s.contact_support_title} onChange={v=>set('contact_support_title',v)}/>
+      <Field label="说明" value={s.contact_support_body} onChange={v=>set('contact_support_body',v)} multiline rows={4}/>
+     </div>
+    </CustomizerSection>
+
+    <CustomizerSection id="footer" title="页脚 Footer" description="公司简介和版权文字" open={open} setOpen={setOpen}>
+     <Field label="页脚公司简介" value={s.footer_description} onChange={v=>set('footer_description',v)} multiline rows={5}/>
+     <Field label="版权文字" value={s.footer_copyright} onChange={v=>set('footer_copyright',v)}/>
+    </CustomizerSection>
+   </aside>
+
+   <section className="customizer-preview-panel">
+    <div className="customizer-preview-toolbar">
+     <div><Eye size={15}/><span>实时预览</span></div>
+     <div className="preview-device-switch">
+      <button type="button" className={previewMode==='desktop'?'active':''} onClick={()=>setPreviewMode('desktop')}>桌面</button>
+      <button type="button" className={previewMode==='mobile'?'active':''} onClick={()=>setPreviewMode('mobile')}>手机</button>
+     </div>
+    </div>
+    <div className={'customizer-preview-stage '+previewMode}>
+     <div className="preview-browser customizer-browser">
+      <div className="preview-header preview-masthead">
+       <div className={'preview-logo '+(s.logo_url?'has-image logo-fit-'+(s.logo_fit||'contain'):'')}>{s.logo_url?<img src={previewMap[s.logo_url]||s.logo_url}/>:<><b>{s.brand_name?.slice(0,1)||'T'}</b><span>{s.brand_name}<small>{s.brand_subtitle}</small></span></>}</div>
+       <div className="preview-header-copy"><b>{s.header_tagline}</b><small>{s.header_products_text}</small></div>
+       <div className="preview-hotline"><span>{s.service_hotline_label||'服务热线'}</span><b>{s.service_hotline_1}</b></div>
+       {s.contact_wechat_qr_url&&<div className="preview-qr"><img src={previewMap[s.contact_wechat_qr_url]||s.contact_wechat_qr_url}/></div>}
+      </div>
+      <div className="preview-nav-row">{navPreview.map(n=><span key={n.id||n.path}>{n.label}</span>)}</div>
+      <div className="preview-hero customizer-preview-hero">
+       <div><small>{s.hero_kicker}</small><h3>{s.hero_title}</h3><p>{s.hero_subtitle}</p><button type="button">{s.hero_primary_text||'按钮'}</button></div>
+       {s.hero_image_url?<img src={previewMap[s.hero_image_url]||s.hero_image_url}/>:<div className="preview-placeholder"><ImageIcon/></div>}
+      </div>
+      <div className="customizer-preview-products">
+       <small>产品系列</small><div>{['产品分类','精选设备','公司新闻'].map(x=><span key={x}>{x}</span>)}</div>
+      </div>
+      <div className="preview-about"><div><small>关于我们</small><h4>{s.about_title}</h4><p>{(s.about_body||'').slice(0,110)}{(s.about_body||'').length>110?'…':''}</p></div>{s.about_image_url?<img src={previewMap[s.about_image_url]||s.about_image_url}/>:<div className="preview-placeholder"><ImageIcon/></div>}</div>
+      <div className="preview-contact"><h4>{s.contact_page_title}</h4><p>{s.contact_address}</p><p>{s.contact_phone} · {s.contact_email}</p></div>
+     </div>
+    </div>
+   </section>
+  </div>
+ </form>
+}
 
 function AdminDashboard({rows,setTab}){
  const products=Array.isArray(rows.products)?rows.products:[];
@@ -469,17 +612,146 @@ function AdminDashboard({rows,setTab}){
 }
 
 function MediaLibrary({upload,busy,setBusy,setMsg}){
- const[items,setItems]=useState([]),[selected,setSelected]=useState([]),[folder,setFolder]=useState('all'),[query,setQuery]=useState(''),[uploadFolder,setUploadFolder]=useState('products'),[loading,setLoading]=useState(true);
- async function load(){setLoading(true);try{const d=await api('/api/admin/media');setItems(Array.isArray(d.items)?d.items:[])}catch(e){setMsg('图片库加载失败：'+e.message)}finally{setLoading(false)}}
+ const[items,setItems]=useState([]),[folders,setFolders]=useState(['products','news','site']),[categoryFolders,setCategoryFolders]=useState([]),[selected,setSelected]=useState([]),[currentFolder,setCurrentFolder]=useState('products'),[query,setQuery]=useState(''),[loading,setLoading]=useState(true),[moveTarget,setMoveTarget]=useState('products');
+ async function load(){
+  setLoading(true);
+  try{
+   const d=await api('/api/admin/media');
+   setItems(Array.isArray(d.items)?d.items:[]);
+   const fs=Array.isArray(d.folders)&&d.folders.length?d.folders:['products','news','site'];
+   setFolders(fs);setCategoryFolders(d.category_folders||[]);
+   if(!fs.includes(currentFolder))setCurrentFolder(fs.includes('products')?'products':fs[0]);
+  }catch(e){setMsg('媒体库加载失败：'+e.message)}
+  finally{setLoading(false)}
+ }
  useEffect(()=>{load()},[]);
- const filtered=items.filter(x=>(folder==='all'||x.folder===folder)&&(!query||x.name.toLowerCase().includes(query.toLowerCase())||x.path.toLowerCase().includes(query.toLowerCase())));
- const removable=filtered.filter(x=>!x.in_use),selectedSet=new Set(selected);
+ useEffect(()=>{if(!folders.includes(moveTarget))setMoveTarget(currentFolder)},[folders,currentFolder]);
+
  const fmt=n=>n>=1024*1024?(n/1024/1024).toFixed(1)+' MB':n>=1024?(n/1024).toFixed(0)+' KB':n+' B';
+ const selectedSet=new Set(selected);
+ const currentItems=items.filter(x=>x.folder_path===currentFolder&&(!query||x.name.toLowerCase().includes(query.toLowerCase())||x.path.toLowerCase().includes(query.toLowerCase())));
+ const childFolders=folders.filter(f=>{
+  if(!f.startsWith(currentFolder+'/'))return false;
+  return f.slice(currentFolder.length+1).split('/').length===1;
+ });
+ const rootLabel=f=>f==='products'?'产品图片':f==='news'?'新闻图片':f==='site'?'网站装修图片':f.split('/').pop();
+
  function toggle(path){setSelected(v=>v.includes(path)?v.filter(x=>x!==path):[...v,path])}
- function selectAll(){const paths=removable.map(x=>x.path);setSelected(v=>paths.every(p=>v.includes(p))?v.filter(x=>!paths.includes(x)):[...new Set([...v,...paths])])}
- async function remove(){if(!selected.length)return;const count=selected.length;if(!confirm(`确定删除选中的 ${count} 张未使用图片？删除后 GitHub 会产生一次提交并触发 Cloudflare 重新部署。`))return;setBusy(true);try{const d=await api('/api/admin/media',{method:'DELETE',body:JSON.stringify({paths:selected})});setSelected([]);setMsg(`已删除 ${d.deleted?.length||0} 张图片${d.blocked?.length?`，另有 ${d.blocked.length} 张仍在使用，已自动跳过。`:''}`);await load()}catch(e){setMsg('删除失败：'+e.message)}finally{setBusy(false)}}
- function add(files){upload(files,async()=>{setMsg('图片已上传到 GitHub；图片库已刷新。');await load()},uploadFolder)}
- return <div className="media-library"><div className="media-toolbar"><div className="media-filter"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索图片文件名"/></div><select value={folder} onChange={e=>setFolder(e.target.value)}><option value="all">全部分类</option><option value="products">产品图片</option><option value="news">新闻图片</option><option value="site">网站装修图片</option></select><button type="button" className="btn btn-ghost" onClick={load}>刷新</button></div><div className="media-actions"><div className="media-upload-group"><select value={uploadFolder} onChange={e=>setUploadFolder(e.target.value)}><option value="products">上传到产品图片</option><option value="news">上传到新闻图片</option><option value="site">上传到网站装修图片</option></select><div className="upload"><Upload size={17}/> 上传图片<input type="file" multiple accept="image/*" onChange={e=>{add(e.target.files);e.target.value=''}}/></div></div><div className="media-batch"><button type="button" onClick={selectAll} disabled={!removable.length}>选择当前未使用图片</button><span>已选 {selected.length} 张</span><button type="button" className="danger-button" onClick={remove} disabled={!selected.length||busy}><Trash2 size={15}/> 批量删除</button></div></div><p className="media-note">“使用中”的图片受到保护，不能在图片库直接删除。请先从对应产品、新闻或网站装修中移除并保存，再回来删除。</p>{loading?<div className="empty">正在读取 GitHub 图片库…</div>:filtered.length?<div className="media-grid">{filtered.map(x=><article className={'media-card '+(x.in_use?'is-used':'')} key={x.path}><label className="media-check"><input type="checkbox" checked={selectedSet.has(x.path)} disabled={x.in_use} onChange={()=>toggle(x.path)}/></label><div className="media-thumb"><img src={'/api/admin/media?file='+encodeURIComponent(x.path)} alt={x.name}/></div><div className="media-meta"><strong title={x.name}>{x.name}</strong><span>{x.folder==='products'?'产品图片':x.folder==='news'?'新闻图片':'网站装修'} · {fmt(x.size)}</span>{x.in_use?<div className="media-used"><b>使用中</b>{x.used_by.map(v=><small key={v}>{v}</small>)}</div>:<em>未使用，可删除</em>}</div></article>)}</div>:<div className="empty">没有找到符合条件的图片。</div>}</div>
+ function selectAll(){const ps=currentItems.map(x=>x.path);setSelected(v=>ps.length&&ps.every(p=>v.includes(p))?v.filter(x=>!ps.includes(x)):[...new Set([...v,...ps])])}
+ async function act(body,success){
+  setBusy(true);
+  try{const d=await api('/api/admin/media',{method:'POST',body:JSON.stringify(body)});setSelected([]);setMsg(success+(d.note?` ${d.note}`:''));await load()}
+  catch(e){setMsg('操作失败：'+e.message)}
+  finally{setBusy(false)}
+ }
+ async function remove(){
+  if(!selected.length)return;
+  if(!confirm(`确定删除选中的 ${selected.length} 张图片？正在使用的图片会自动跳过。`))return;
+  setBusy(true);
+  try{const d=await api('/api/admin/media',{method:'DELETE',body:JSON.stringify({paths:selected})});setSelected([]);setMsg(`已删除 ${d.deleted?.length||0} 张图片${d.blocked?.length?`，${d.blocked.length} 张使用中图片已跳过。`:''}`);await load()}
+  catch(e){setMsg('删除失败：'+e.message)}
+  finally{setBusy(false)}
+ }
+ function uploadFiles(files,relativePaths=[]){
+  if(!files?.length)return;
+  upload(files,async()=>{setMsg('图片已上传到当前文件夹。');await load()},currentFolder,relativePaths);
+ }
+ function uploadFolder(files){
+  const arr=[...(files||[])].filter(f=>f.type?.startsWith('image/'));
+  const rel=arr.map(f=>f.webkitRelativePath||f.name);
+  uploadFiles(arr,rel);
+ }
+ async function createFolder(){
+  const name=prompt('新建文件夹名称：');if(!name)return;
+  await act({action:'create_folder',parent:currentFolder,name},'文件夹已创建。');
+ }
+ async function renameCurrentFolder(){
+  if(['products','news','site'].includes(currentFolder))return;
+  const old=currentFolder.split('/').pop(),name=prompt('新的文件夹名称：',old);if(!name||name===old)return;
+  await act({action:'rename_folder',folder:currentFolder,new_name:name},'文件夹已重命名。');
+ }
+ async function moveCurrentFolder(){
+  if(['products','news','site'].includes(currentFolder))return;
+  const candidates=folders.filter(f=>f!==currentFolder&&!f.startsWith(currentFolder+'/'));
+  const target=prompt('移动到哪个父文件夹？\n例如：products 或 products/mixing-equipment\n\n可用目录：\n'+candidates.slice(0,30).join('\n'),'products');
+  if(!target)return;
+  await act({action:'move_folder',folder:currentFolder,target_folder:target},'文件夹已移动。');
+ }
+ async function renameOne(){
+  if(selected.length!==1){setMsg('请只选择一张图片后再重命名。');return}
+  const item=items.find(x=>x.path===selected[0]),name=prompt('新的文件名：',item?.name||'');if(!name||name===item?.name)return;
+  await act({action:'rename',path:selected[0],new_name:name},'图片已重命名。');
+ }
+ async function batchRename(){
+  if(!selected.length)return;
+  const prefix=prompt('批量重命名前缀：\n例如 mixer，结果将是 mixer-01.webp、mixer-02.webp …','product');
+  if(!prefix)return;
+  const start=Number(prompt('起始编号：','1')||1);
+  await act({action:'batch_rename',paths:selected,prefix,start},'已完成批量重命名。');
+ }
+ async function moveSelected(){
+  if(!selected.length)return;
+  if(!moveTarget){setMsg('请选择目标文件夹。');return}
+  await act({action:'move',paths:selected,target_folder:moveTarget},`已移动到 ${moveTarget}。`);
+ }
+ async function syncCategoryFolders(){await act({action:'sync_categories'},'产品分类文件夹已同步。')}
+
+ const productFolders=folders.filter(f=>f==='products'||f.startsWith('products/'));
+ const otherRoots=['news','site'];
+ return <div className="media-manager">
+  <aside className="media-folder-sidebar">
+   <div className="media-folder-title"><span>媒体库</span><button type="button" onClick={createFolder} title="在当前目录新建子文件夹"><Plus size={15}/></button></div>
+   <button type="button" className={currentFolder==='products'?'active root':''} onClick={()=>{setCurrentFolder('products');setSelected([])}}>产品图片</button>
+   {productFolders.filter(f=>f!=='products').map(f=>{
+    const depth=f.split('/').length-1;
+    return <button type="button" key={f} className={currentFolder===f?'active':''} style={{paddingLeft:14+depth*14}} onClick={()=>{setCurrentFolder(f);setSelected([])}}>{f.split('/').pop()}</button>
+   })}
+   {otherRoots.map(f=><button type="button" key={f} className={currentFolder===f?'active root':''} onClick={()=>{setCurrentFolder(f);setSelected([])}}>{rootLabel(f)}</button>)}
+   <button type="button" className="sync-folders" onClick={syncCategoryFolders}>同步产品分类文件夹</button>
+  </aside>
+
+  <section className="media-manager-main">
+   <div className="media-pathbar">
+    <div><span>当前位置</span><strong>{currentFolder}</strong></div>
+    <div className="media-folder-ops">
+     <button type="button" onClick={createFolder}><Plus size={14}/> 新建子文件夹</button>
+     {!['products','news','site'].includes(currentFolder)&&<button type="button" onClick={renameCurrentFolder}>重命名文件夹</button>}
+     {!['products','news','site'].includes(currentFolder)&&<button type="button" onClick={moveCurrentFolder}>移动文件夹</button>}
+    </div>
+   </div>
+
+   {childFolders.length>0&&<div className="media-child-folders">{childFolders.map(f=><button type="button" key={f} onClick={()=>{setCurrentFolder(f);setSelected([])}}><span>📁</span><strong>{f.split('/').pop()}</strong></button>)}</div>}
+
+   <div className="media-toolbar">
+    <div className="media-filter"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索当前文件夹图片"/></div>
+    <button type="button" className="btn btn-ghost" onClick={load}>刷新</button>
+   </div>
+
+   <div className="media-actions media-file-actions">
+    <div className="media-upload-group">
+     <label className="upload"><Upload size={16}/> 上传图片<input type="file" multiple accept="image/*" onChange={e=>{uploadFiles([...e.target.files]);e.target.value=''}}/></label>
+     <label className="upload folder-upload"><Upload size={16}/> 上传整个文件夹<input type="file" multiple webkitdirectory="" directory="" onChange={e=>{uploadFolder(e.target.files);e.target.value=''}}/></label>
+    </div>
+    <div className="media-batch">
+     <button type="button" onClick={selectAll} disabled={!currentItems.length}>全选当前</button>
+     <span>已选 {selected.length} 张</span>
+     <button type="button" onClick={renameOne} disabled={selected.length!==1}>重命名</button>
+     <button type="button" onClick={batchRename} disabled={!selected.length}>批量重命名</button>
+     <select value={moveTarget} onChange={e=>setMoveTarget(e.target.value)}>{folders.map(f=><option key={f} value={f}>移动到：{f}</option>)}</select>
+     <button type="button" onClick={moveSelected} disabled={!selected.length}>移动图片</button>
+     <button type="button" className="danger-button" onClick={remove} disabled={!selected.length||busy}><Trash2 size={14}/> 删除</button>
+    </div>
+   </div>
+
+   <p className="media-note">移动或重命名“使用中”的图片时，系统会同步修改 D1 中的产品、新闻和网站设置引用，避免前台断图。文件夹由 GitHub 路径管理，不额外占用 D1。</p>
+
+   {loading?<div className="empty">正在读取 GitHub 媒体库…</div>:currentItems.length?<div className="media-grid">{currentItems.map(x=><article className={'media-card '+(x.in_use?'is-used':'')} key={x.path}>
+    <label className="media-check"><input type="checkbox" checked={selectedSet.has(x.path)} onChange={()=>toggle(x.path)}/></label>
+    <div className="media-thumb"><img src={'/api/admin/media?file='+encodeURIComponent(x.path)} alt={x.name}/></div>
+    <div className="media-meta"><strong title={x.name}>{x.name}</strong><span>{fmt(x.size)}</span>{x.in_use?<div className="media-used"><b>使用中</b>{x.used_by.map(v=><small key={v}>{v}</small>)}</div>:<em>未使用</em>}</div>
+   </article>)}</div>:<div className="empty">当前文件夹没有图片。</div>}
+  </section>
+ </div>
 }
 function Dashboard({onLogout}){const[tab,setTab]=useState('dashboard'),[rows,setRows]=useState({categories:[],products:[],news:[],settings:DEFAULT_SETTINGS,navigation:DEFAULT_NAV}),[editing,setEditing]=useState(null),[siteDraft,setSiteDraft]=useState(DEFAULT_SETTINGS),[msg,setMsg]=useState(''),[busy,setBusy]=useState(false),[previewMap,setPreviewMap]=useState({}),siteLoadedRef=useRef(false),siteSaveTimerRef=useRef(null);const{refresh}=useData();async function load(){try{const d=await api('/api/admin/items?type=products');const merged={...d,settings:{...DEFAULT_SETTINGS,...(d.settings||{})},navigation:Array.isArray(d.navigation)&&d.navigation.length?d.navigation:DEFAULT_NAV};setRows(merged);setSiteDraft(merged.settings);siteLoadedRef.current=true}catch(e){setMsg(e.message)}}useEffect(()=>{load()},[]);
 useEffect(()=>{
@@ -495,7 +767,7 @@ useEffect(()=>{
  },700);
  return()=>clearTimeout(siteSaveTimerRef.current);
 },[siteDraft]);
-const blank={categories:{name:'',slug:'',summary:'',sort_order:0},products:{model:'',name:'',slug:'',category_id:'',summary:'',description:'',specs:{},images:[],detail_images:[],featured:false,sort_order:0},news:{title:'',slug:'',excerpt:'',body:'',cover_url:'',status:'draft',published_at:new Date().toISOString()},navigation:{label:'',path:'/',sort_order:(rows.navigation?.length||0)+1,visible:true}};const update=(k,v)=>setEditing(x=>({...x,[k]:v}));async function save(e){e.preventDefault();setBusy(true);try{const p={...editing};if(!p.slug&&tab!=='navigation')p.slug=slugify(p.model?`${p.model}-${p.name}`:p.title||p.name);const method=p.id?'PUT':'POST';await api('/api/admin/items?type='+tab,{method,body:JSON.stringify(p)});setEditing(null);setMsg('保存成功。');await Promise.all([load(),refresh()])}catch(e){setMsg('保存失败：'+e.message)}finally{setBusy(false)}}async function saveSettings(s){setBusy(true);try{await api('/api/admin/items?type=settings',{method:'PUT',body:JSON.stringify(s)});setMsg('网站设置已保存，前台已更新。');await Promise.all([load(),refresh()])}catch(e){setMsg('保存失败：'+e.message)}finally{setBusy(false)}}async function del(x){if(!confirm('确定删除？'))return;try{await api(`/api/admin/items?type=${tab}&id=${x.id}`,{method:'DELETE'});await Promise.all([load(),refresh()]);setMsg('已删除。')}catch(e){setMsg(e.message)}}async function upload(files,onDone,folder){if(!files?.length)return;const originalFiles=[...files];setBusy(true);setMsg('正在优化并上传图片…');try{const fileList=await Promise.all(originalFiles.map(optimizeImageFile)),localPreviews=fileList.map(f=>URL.createObjectURL(f));const fd=new FormData();fileList.forEach(f=>fd.append('files',f));fd.append('folder',folder);const d=await api('/api/admin/upload',{method:'POST',body:fd});const pairs={};d.urls.forEach((u,i)=>{if(localPreviews[i])pairs[u]=localPreviews[i]});setPreviewMap(m=>({...m,...pairs}));onDone(d.urls);setMsg('图片已上传。后台立即显示预览；Cloudflare 自动部署完成后正式图片地址生效。')}catch(e){setMsg('上传失败：'+e.message)}finally{setBusy(false)}}async function uploadField(files,field,folder){upload(files,urls=>{if(field==='images'||field==='detail_images')update(field,[...(editing[field]||[]),...urls]);else update(field,urls[0])},folder)}async function logout(){await api('/api/auth/logout',{method:'POST'}).catch(()=>{});onLogout()}const menu=[['dashboard','首页',null],['site','网站装修',Settings2],['categories','产品分类',null],['products','产品',null],['media','媒体库',ImageIcon],['news','新闻',null],['navigation','导航菜单',PanelTop]];const list=rows[tab]||[];const title={dashboard:'首页',products:'产品管理',categories:'产品分类',news:'新闻管理',site:'网站装修',media:'媒体库',navigation:'导航菜单'}[tab];return <div className="admin-layout"><aside className="admin-sidebar"><Logo settings={siteDraft}/><div className="admin-menu"><span>后台管理</span>{menu.map(([k,n,Icon])=><button key={k} className={tab===k?'active':''} onClick={()=>{setTab(k);setEditing(null)}}>{Icon&&<Icon size={15}/>}<span className="menu-name">{n}</span>{!['site','dashboard'].includes(k)&&<span>{Array.isArray(rows[k])?rows[k].length:''}</span>}</button>)}</div><Link to="/" target="_blank"><ExternalLink size={16}/> 查看网站</Link><button className="admin-signout" onClick={logout}><LogOut size={16}/> 退出登录</button></aside><section className="admin-content"><div className="admin-top"><div><span className="eyebrow">后台管理</span><h1>{title}</h1></div>{['products','categories','news','navigation'].includes(tab)&&<button className="btn btn-accent" onClick={()=>setEditing(structuredClone(blank[tab]))}><Plus size={17}/> 新增</button>}</div>{msg&&<div className="admin-message">{msg}</div>}{tab==='dashboard'?<AdminDashboard rows={rows} setTab={setTab}/>:tab==='site'?<SiteSettingsEditor value={siteDraft} onChange={setSiteDraft} onSave={saveSettings} busy={busy} previewMap={previewMap} upload={(files,cb,folder)=>upload(files,cb,folder)} navigation={rows.navigation||DEFAULT_NAV}/>:tab==='media'?<MediaLibrary upload={(files,cb,folder)=>upload(files,cb,folder)} busy={busy} setBusy={setBusy} setMsg={setMsg}/>:editing?<form className="editor" onSubmit={save}><div className="editor-title"><h2>{editing.id?'编辑':'新增'}内容</h2><button type="button" onClick={()=>setEditing(null)}>取消 <X size={14}/></button></div>{tab==='categories'&&<><Field label="分类名称" value={editing.name} onChange={v=>update('name',v)} required/><Field label="URL 标识（Slug）" value={editing.slug} onChange={v=>update('slug',v)}/><Field label="简介" value={editing.summary} onChange={v=>update('summary',v)} multiline/><Field label="显示排序" type="number" value={editing.sort_order} onChange={v=>update('sort_order',Number(v))}/></>}{tab==='navigation'&&<><Field label="菜单名称" value={editing.label} onChange={v=>update('label',v)} required/><Field label="链接路径" value={editing.path} onChange={v=>update('path',v)} placeholder="例如 /products" required/><Field label="排序" type="number" value={editing.sort_order} onChange={v=>update('sort_order',Number(v))}/><label className="check-line"><input type="checkbox" checked={editing.visible!==false} onChange={e=>update('visible',e.target.checked)}/>{editing.visible!==false?<Eye size={15}/>:<EyeOff size={15}/>} 前台显示</label></>}{tab==='products'&&<><div className="form-grid"><Field label="产品型号" value={editing.model} onChange={v=>update('model',v)} required/><Field label="产品名称" value={editing.name} onChange={v=>update('name',v)} required/></div><label className="field">所属分类<select value={editing.category_id||''} onChange={e=>update('category_id',Number(e.target.value))} required><option value="">请选择</option>{rows.categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label><Field label="URL 标识（Slug）" value={editing.slug} onChange={v=>update('slug',v)}/><Field label="简短介绍" value={editing.summary} onChange={v=>update('summary',v)} multiline/><Field label="产品详细介绍" value={editing.description} onChange={v=>update('description',v)} multiline rows={7}/><SpecsEditor value={editing.specs||{}} onChange={v=>update('specs',v)}/><label className="check-line"><input type="checkbox" checked={!!editing.featured} onChange={e=>update('featured',e.target.checked)}/> 首页推荐</label><Field label="显示排序" type="number" value={editing.sort_order} onChange={v=>update('sort_order',Number(v))}/><div className="product-media-editor">
+const blank={categories:{name:'',slug:'',summary:'',sort_order:0},products:{model:'',name:'',slug:'',category_id:'',summary:'',description:'',specs:{},images:[],detail_images:[],featured:false,sort_order:0},news:{title:'',slug:'',excerpt:'',body:'',cover_url:'',status:'draft',published_at:new Date().toISOString()},navigation:{label:'',path:'/',sort_order:(rows.navigation?.length||0)+1,visible:true}};const update=(k,v)=>setEditing(x=>({...x,[k]:v}));async function save(e){e.preventDefault();setBusy(true);try{const p={...editing};if(!p.slug&&tab!=='navigation')p.slug=slugify(p.model?`${p.model}-${p.name}`:p.title||p.name);const method=p.id?'PUT':'POST';await api('/api/admin/items?type='+tab,{method,body:JSON.stringify(p)});setEditing(null);setMsg('保存成功。');await Promise.all([load(),refresh()])}catch(e){setMsg('保存失败：'+e.message)}finally{setBusy(false)}}async function saveSettings(s){setBusy(true);try{await api('/api/admin/items?type=settings',{method:'PUT',body:JSON.stringify(s)});setMsg('网站设置已保存，前台已更新。');await Promise.all([load(),refresh()])}catch(e){setMsg('保存失败：'+e.message)}finally{setBusy(false)}}async function del(x){if(!confirm('确定删除？'))return;try{await api(`/api/admin/items?type=${tab}&id=${x.id}`,{method:'DELETE'});await Promise.all([load(),refresh()]);setMsg('已删除。')}catch(e){setMsg(e.message)}}async function upload(files,onDone,folder,relativePaths=[]){if(!files?.length)return;const originalFiles=[...files];setBusy(true);setMsg('正在优化并上传图片…');try{const fileList=await Promise.all(originalFiles.map(optimizeImageFile)),localPreviews=fileList.map(f=>URL.createObjectURL(f));const fd=new FormData();fileList.forEach(f=>fd.append('files',f));relativePaths.forEach(p=>fd.append('relative_paths',p));fd.append('folder',folder);const d=await api('/api/admin/upload',{method:'POST',body:fd});const pairs={};d.urls.forEach((u,i)=>{if(localPreviews[i])pairs[u]=localPreviews[i]});setPreviewMap(m=>({...m,...pairs}));onDone(d.urls);setMsg('图片已上传。后台立即显示预览；Cloudflare 自动部署完成后正式图片地址生效。')}catch(e){setMsg('上传失败：'+e.message)}finally{setBusy(false)}}async function uploadField(files,field,folder){upload(files,urls=>{if(field==='images'||field==='detail_images')update(field,[...(editing[field]||[]),...urls]);else update(field,urls[0])},folder)}async function logout(){await api('/api/auth/logout',{method:'POST'}).catch(()=>{});onLogout()}const menu=[['dashboard','首页',null],['site','网站装修',Settings2],['categories','产品分类',null],['products','产品',null],['media','媒体库',ImageIcon],['news','新闻',null],['navigation','导航菜单',PanelTop]];const list=rows[tab]||[];const title={dashboard:'首页',products:'产品管理',categories:'产品分类',news:'新闻管理',site:'网站装修',media:'媒体库',navigation:'导航菜单'}[tab];return <div className="admin-layout"><aside className="admin-sidebar"><Logo settings={siteDraft}/><div className="admin-menu"><span>后台管理</span>{menu.map(([k,n,Icon])=><button key={k} className={tab===k?'active':''} onClick={()=>{setTab(k);setEditing(null)}}>{Icon&&<Icon size={15}/>}<span className="menu-name">{n}</span>{!['site','dashboard'].includes(k)&&<span>{Array.isArray(rows[k])?rows[k].length:''}</span>}</button>)}</div><Link to="/" target="_blank"><ExternalLink size={16}/> 查看网站</Link><button className="admin-signout" onClick={logout}><LogOut size={16}/> 退出登录</button></aside><section className="admin-content"><div className="admin-top"><div><span className="eyebrow">后台管理</span><h1>{title}</h1></div>{['products','categories','news','navigation'].includes(tab)&&<button className="btn btn-accent" onClick={()=>setEditing(structuredClone(blank[tab]))}><Plus size={17}/> 新增</button>}</div>{msg&&<div className="admin-message">{msg}</div>}{tab==='dashboard'?<AdminDashboard rows={rows} setTab={setTab}/>:tab==='site'?<SiteSettingsEditor value={siteDraft} onChange={setSiteDraft} onSave={saveSettings} busy={busy} previewMap={previewMap} upload={(files,cb,folder)=>upload(files,cb,folder)} navigation={rows.navigation||DEFAULT_NAV}/>:tab==='media'?<MediaLibrary upload={(files,cb,folder)=>upload(files,cb,folder)} busy={busy} setBusy={setBusy} setMsg={setMsg}/>:editing?<form className="editor" onSubmit={save}><div className="editor-title"><h2>{editing.id?'编辑':'新增'}内容</h2><button type="button" onClick={()=>setEditing(null)}>取消 <X size={14}/></button></div>{tab==='categories'&&<><Field label="分类名称" value={editing.name} onChange={v=>update('name',v)} required/><Field label="URL 标识（Slug）" value={editing.slug} onChange={v=>update('slug',v)}/><Field label="简介" value={editing.summary} onChange={v=>update('summary',v)} multiline/><Field label="显示排序" type="number" value={editing.sort_order} onChange={v=>update('sort_order',Number(v))}/></>}{tab==='navigation'&&<><Field label="菜单名称" value={editing.label} onChange={v=>update('label',v)} required/><Field label="链接路径" value={editing.path} onChange={v=>update('path',v)} placeholder="例如 /products" required/><Field label="排序" type="number" value={editing.sort_order} onChange={v=>update('sort_order',Number(v))}/><label className="check-line"><input type="checkbox" checked={editing.visible!==false} onChange={e=>update('visible',e.target.checked)}/>{editing.visible!==false?<Eye size={15}/>:<EyeOff size={15}/>} 前台显示</label></>}{tab==='products'&&<><div className="form-grid"><Field label="产品型号" value={editing.model} onChange={v=>update('model',v)} required/><Field label="产品名称" value={editing.name} onChange={v=>update('name',v)} required/></div><label className="field">所属分类<select value={editing.category_id||''} onChange={e=>update('category_id',Number(e.target.value))} required><option value="">请选择</option>{rows.categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label><Field label="URL 标识（Slug）" value={editing.slug} onChange={v=>update('slug',v)}/><Field label="简短介绍" value={editing.summary} onChange={v=>update('summary',v)} multiline/><Field label="产品详细介绍" value={editing.description} onChange={v=>update('description',v)} multiline rows={7}/><SpecsEditor value={editing.specs||{}} onChange={v=>update('specs',v)}/><label className="check-line"><input type="checkbox" checked={!!editing.featured} onChange={e=>update('featured',e.target.checked)}/> 首页推荐</label><Field label="显示排序" type="number" value={editing.sort_order} onChange={v=>update('sort_order',Number(v))}/><div className="product-media-editor">
  <div className="product-media-editor-title"><span className="eyebrow">商品图片</span><h2>产品图片管理</h2><p>参考电商商品后台：主图负责列表与顶部展示，详情图用于产品详情页下方内容。</p></div>
  <ProductImageGroupEditor title="主图 / 商品图" help="第一张自动作为产品封面图；用于首页推荐、产品中心缩略图和产品详情顶部轮播。" images={editing.images||[]} onChange={v=>update('images',v)} onUpload={files=>uploadField(files,'images','products')} previewMap={previewMap} mainMode/>
  <ProductImageGroupEditor title="详情图" help="只显示在产品详情页下方，适合设备细节、结构、尺寸、应用场景等图片。" images={editing.detail_images||[]} onChange={v=>update('detail_images',v)} onUpload={files=>uploadField(files,'detail_images','products')} previewMap={previewMap}/>
