@@ -13,6 +13,13 @@ const DEFAULT_SETTINGS={
  home_automation_kicker:'AUTOMATION',home_automation_title:'自动化与成套解决方案',home_automation_text:'围绕混炼、上料、出片、冷却、输送与控制环节进行设备联动和流程优化，让生产节拍更稳定、操作更直观、维护更方便。',home_automation_image_url:'',
  about_page_title:'关于 Tyrkaid',about_page_intro:'来自中国东莞的橡胶、塑料与硅胶加工设备制造商。',about_eyebrow:'DONGGUAN TYRKAID MACHINERY CO., LTD.',about_title:'专注橡胶、塑料与硅胶混炼技术。',about_body:'Tyrkaid 专注于橡胶、塑料及硅胶混炼设备的设计、研发与制造。产品覆盖开放式炼胶机、密炼机、压延设备、切胶设备及相关辅助系统，可满足实验室研发、中试验证与工业化生产等不同场景。\n\n公司位于中国制造业重镇广东东莞。我们将制造经验与工程应用相结合，从设备结构、工艺配置到维护便利性持续优化，重点关注运行稳定性、生产效率、节能表现与长期可维护性。\n\n针对不同材料体系、产能规模和工艺要求，Tyrkaid 可提供针对性的设备配置建议与应用支持，帮助客户从选型到落地更高效地推进项目。',about_image_url:'',
  contact_page_title:'联系我们',contact_page_intro:'Dongguan Tyrkaid Machinery Co., Ltd.',contact_address:'中国广东省东莞市高埗镇高埗中心中路1号1栋101室',contact_phone:'+86-13806015010',contact_email:'sales@tyrkaid.com',contact_whatsapp:'',contact_wechat_label:'微信',contact_wechat_qr_url:'',contact_support_title:'产品支持',contact_support_body:'您可以在产品中心查看设备分类、具体型号、技术说明及产品图片；公司动态与技术内容请前往公司新闻栏目。',
+ home_sections:[
+  {id:'home-hero',type:'hero',enabled:true,label:'首页 Banner',kicker:'',title:'',text:'',tone:'white'},
+  {id:'home-categories',type:'categories',enabled:true,label:'产品系列',kicker:'OUR COLLECTIONS',title:'产品系列',text:'',tone:'blue'},
+  {id:'home-featured',type:'featured',enabled:true,label:'精选设备',kicker:'SELECTED PRODUCTS',title:'精选设备',text:'',tone:'amber'},
+  {id:'home-about',type:'about',enabled:true,label:'关于我们',kicker:'ABOUT TYRKAID',title:'',text:'',tone:'navy'},
+  {id:'home-news',type:'news',enabled:true,label:'公司动态',kicker:'LATEST NEWS',title:'公司动态',text:'',tone:'green'}
+ ],
  footer_description:'专注橡胶、塑料与硅胶混炼加工设备，为实验研发与工业生产提供稳定、实用、可持续的设备解决方案。',footer_copyright:'Dongguan Tyrkaid Machinery Co., Ltd. 保留所有权利。'
 };
 const DEFAULT_NAV=[{id:1,label:'首页',path:'/',sort_order:1,visible:true},{id:2,label:'产品中心',path:'/products',sort_order:2,visible:true},{id:3,label:'关于我们',path:'/about',sort_order:3,visible:true},{id:4,label:'公司新闻',path:'/news',sort_order:4,visible:true},{id:5,label:'联系我们',path:'/contact',sort_order:5,visible:true}];
@@ -141,29 +148,35 @@ function ProductCard({item,priority=false}){
 }function Home(){
  const{categories,products,news,settings}=useData();
  const featured=products.filter(x=>x.featured).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).slice(0,6);
- const categoryImage=c=>{
-  const p=products.find(x=>Number(x.category_id)===Number(c.id)&&imageOf(x));
-  return p?imageOf(p):'';
- };
- return <main className="karee-home">
-  <section className="karee-hero">
+ const categoryImage=c=>{const p=products.find(x=>Number(x.category_id)===Number(c.id)&&imageOf(x));return p?imageOf(p):''};
+ const fallback=[
+  {id:'home-hero',type:'hero',enabled:true,label:'首页 Banner',tone:'white'},
+  {id:'home-categories',type:'categories',enabled:true,label:'产品系列',kicker:'OUR COLLECTIONS',title:'产品系列',tone:'blue'},
+  {id:'home-featured',type:'featured',enabled:true,label:'精选设备',kicker:'SELECTED PRODUCTS',title:'精选设备',tone:'amber'},
+  {id:'home-about',type:'about',enabled:true,label:'关于我们',kicker:'ABOUT TYRKAID',tone:'navy'},
+  {id:'home-news',type:'news',enabled:true,label:'公司动态',kicker:'LATEST NEWS',title:'公司动态',tone:'green'}
+ ];
+ const sections=Array.isArray(settings.home_sections)&&settings.home_sections.length?settings.home_sections:fallback;
+ const renderSection=(sec,index)=>{
+  if(sec.enabled===false)return null;
+  if(sec.type==='hero')return <section className="karee-hero" key={sec.id||index}>
    <div className="container karee-hero-grid">
     <div className="karee-hero-copy">
-     <span className="karee-overline">{settings.hero_kicker||'TYRKAID MACHINERY'}</span>
-     <h1>{settings.hero_title}</h1>
-     <p>{settings.hero_subtitle}</p>
+     <span className="karee-overline">{sec.kicker||settings.hero_kicker||'TYRKAID MACHINERY'}</span>
+     <h1>{sec.title||settings.hero_title}</h1>
+     <p>{sec.text||settings.hero_subtitle}</p>
      <div className="karee-hero-actions">
       {settings.hero_primary_text&&<Link className="karee-btn primary" to={settings.hero_primary_link||'/products'}>{settings.hero_primary_text}<ArrowRight size={16}/></Link>}
       {settings.hero_secondary_text&&<Link className="karee-btn secondary" to={settings.hero_secondary_link||'/about'}>{settings.hero_secondary_text}</Link>}
      </div>
     </div>
-    <div className="karee-hero-media">{settings.hero_image_url?<img src={settings.hero_image_url} alt={settings.hero_title} loading="eager" decoding="async" fetchPriority="high"/>:<Art/>}</div>
+    <div className="karee-hero-media">{settings.hero_image_url?<img src={settings.hero_image_url} alt={sec.title||settings.hero_title} loading="eager" decoding="async" fetchPriority="high"/>:<Art/>}</div>
    </div>
-  </section>
+  </section>;
 
-  <section className="karee-section">
+  if(sec.type==='categories')return <section className={'karee-section home-dynamic-section home-tone-'+(sec.tone||'blue')} key={sec.id||index}>
    <div className="container">
-    <div className="karee-section-head"><span className="karee-overline">OUR COLLECTIONS</span><h2>产品系列</h2></div>
+    <div className="karee-section-head"><span className="karee-overline">{sec.kicker||'OUR COLLECTIONS'}</span><h2>{sec.title||'产品系列'}</h2>{sec.text&&<p className="home-section-intro">{sec.text}</p>}</div>
     <div className="karee-category-grid">
      {categories.map(c=><Link className="karee-category-card" key={c.id} to={'/categories/'+c.slug}>
       <div className="karee-category-image">{categoryImage(c)?<img src={categoryImage(c)} alt={c.name} loading="lazy" decoding="async"/>:<Art/>}</div>
@@ -171,30 +184,40 @@ function ProductCard({item,priority=false}){
      </Link>)}
     </div>
    </div>
-  </section>
+  </section>;
 
-  <section className="karee-section karee-selected">
+  if(sec.type==='featured')return <section className={'karee-section karee-selected home-dynamic-section home-tone-'+(sec.tone||'amber')} key={sec.id||index}>
    <div className="container">
-    <div className="karee-section-head split"><div><span className="karee-overline">SELECTED PRODUCTS</span><h2>精选设备</h2></div><Link className="karee-text-link" to="/products">全部产品 <ArrowRight size={15}/></Link></div>
+    <div className="karee-section-head split"><div><span className="karee-overline">{sec.kicker||'SELECTED PRODUCTS'}</span><h2>{sec.title||'精选设备'}</h2>{sec.text&&<p className="home-section-intro">{sec.text}</p>}</div><Link className="karee-text-link" to="/products">全部产品 <ArrowRight size={15}/></Link></div>
     <div className="karee-product-grid">{featured.map((p,i)=><ProductCard key={p.id} item={p} priority={i<2}/>)}</div>
    </div>
-  </section>
+  </section>;
 
-  <section className="karee-brand-band">
+  if(sec.type==='about')return <section className={'karee-brand-band home-dynamic-section home-tone-'+(sec.tone||'navy')} key={sec.id||index}>
    <div className="container karee-brand-grid">
-    <div><span className="karee-overline">ABOUT TYRKAID</span><h2>{settings.about_title}</h2><p>{(settings.about_body||'').split(/\n\n+/)[0]}</p><Link className="karee-text-link light" to="/about">了解我们 <ArrowRight size={15}/></Link></div>
-    <div className="karee-brand-media">{settings.about_image_url?<img src={settings.about_image_url} alt={settings.about_title} loading="lazy" decoding="async"/>:<Art/>}</div>
+    <div><span className="karee-overline">{sec.kicker||'ABOUT TYRKAID'}</span><h2>{sec.title||settings.about_title}</h2><p>{sec.text||(settings.about_body||'').split(/\n\n+/)[0]}</p><Link className="karee-text-link light" to="/about">了解我们 <ArrowRight size={15}/></Link></div>
+    <div className="karee-brand-media">{settings.about_image_url?<img src={settings.about_image_url} alt={sec.title||settings.about_title} loading="lazy" decoding="async"/>:<Art/>}</div>
    </div>
-  </section>
+  </section>;
 
-  <section className="karee-section">
+  if(sec.type==='news')return <section className={'karee-section home-dynamic-section home-tone-'+(sec.tone||'green')} key={sec.id||index}>
    <div className="container">
-    <div className="karee-section-head split"><div><span className="karee-overline">LATEST NEWS</span><h2>公司动态</h2></div><Link className="karee-text-link" to="/news">全部新闻 <ArrowRight size={15}/></Link></div>
+    <div className="karee-section-head split"><div><span className="karee-overline">{sec.kicker||'LATEST NEWS'}</span><h2>{sec.title||'公司动态'}</h2>{sec.text&&<p className="home-section-intro">{sec.text}</p>}</div><Link className="karee-text-link" to="/news">全部新闻 <ArrowRight size={15}/></Link></div>
     <div className="karee-news-grid">{news.slice(0,3).map(n=><NewsCard key={n.id} item={n}/>)}</div>
    </div>
-  </section>
- </main>
-}function PageHead({title,text,kicker='TYRKAID'}){
+  </section>;
+
+  if(sec.type==='custom')return <section className={'karee-section home-custom-section home-tone-'+(sec.tone||'gray')} key={sec.id||index}>
+   <div className="container home-custom-grid">
+    <div className="home-custom-copy"><span className="karee-overline">{sec.kicker||'TYRKAID'}</span><h2>{sec.title||'自定义内容区'}</h2>{sec.text&&<p>{sec.text}</p>}{sec.button_text&&<Link className="karee-btn primary" to={sec.button_link||'/products'}>{sec.button_text}<ArrowRight size={15}/></Link>}</div>
+    {sec.image_url&&<div className="home-custom-media"><img src={sec.image_url} alt={sec.title||'自定义内容'} loading="lazy" decoding="async"/></div>}
+   </div>
+  </section>;
+  return null;
+ };
+ return <main className="karee-home">{sections.map(renderSection)}</main>
+}
+function PageHead({title,text,kicker='TYRKAID'}){
  return <div className="page-head karee-page-head"><div className="container"><span className="karee-overline">{kicker}</span><h1>{title}</h1>{text&&<p>{text}</p>}</div></div>
 }function Products(){
  const{categories,products}=useData();
@@ -385,164 +408,154 @@ function SpecsEditor({value,onChange}){
 }
 function Admin(){const[checked,setChecked]=useState(false),[ok,setOk]=useState(false),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[err,setErr]=useState('');useEffect(()=>{api('/api/auth/session').then(x=>setOk(x.authenticated)).catch(()=>{}).finally(()=>setChecked(true))},[]);async function login(e){e.preventDefault();try{await api('/api/auth/login',{method:'POST',body:JSON.stringify({username,password})});setOk(true);setErr('')}catch(e){setErr(e.message)}}if(!checked)return <div className="admin-shell">正在验证登录状态…</div>;if(!ok)return <div className="admin-shell"><form className="admin-login" onSubmit={login}><Logo/><ShieldCheck size={34}/><h1>后台登录</h1><p>仅限授权的网站管理员登录。</p>{err&&<div className="form-error">{err}</div>}<Field label="用户名" value={username} onChange={setUsername} required/><Field label="密码" type="password" value={password} onChange={setPassword} required/><button className="btn btn-accent">登录 <ArrowRight size={17}/></button><Link to="/">← 返回网站</Link></form></div>;return <Dashboard onLogout={()=>setOk(false)}/>}
 function ImageUploader({label,value,previewMap,onUploaded,upload,folder='site'}){return <div className="field"><span>{label}</span><div className="upload"><Upload size={17}/> 选择并上传图片<input type="file" accept="image/*" onChange={e=>{upload(e.target.files,(urls)=>onUploaded(urls[0]),folder);e.target.value=''}}/></div>{value&&<div className="setting-image-preview"><img src={previewMap[value]||value}/><button type="button" onClick={()=>onUploaded('')}><Trash2 size={15}/> 移除</button></div>}</div>}
-function CustomizerSection({id,title,description,open,setOpen,children}){
- const expanded=open===id;
- return <section className={'customizer-section '+(expanded?'is-open':'')}>
-  <button type="button" className="customizer-section-toggle" onClick={()=>setOpen(expanded?'':id)} aria-expanded={expanded}>
-   <div><strong>{title}</strong>{description&&<small>{description}</small>}</div><span>{expanded?'−':'+'}</span>
-  </button>
-  {expanded&&<div className="customizer-section-body">{children}</div>}
- </section>
+const HOME_SECTION_META={
+ hero:{name:'首页 Banner',color:'slate',description:'首屏大图、标题和按钮'},
+ categories:{name:'产品系列',color:'blue',description:'展示产品分类入口'},
+ featured:{name:'精选设备',color:'amber',description:'展示后台勾选的首页推荐产品'},
+ about:{name:'关于我们',color:'navy',description:'公司介绍与品牌图片'},
+ news:{name:'公司动态',color:'green',description:'展示最新新闻'},
+ custom:{name:'自定义内容',color:'purple',description:'自由文字、图片和按钮'}
+};
+function newHomeSection(type='custom'){
+ const meta=HOME_SECTION_META[type]||HOME_SECTION_META.custom;
+ return {id:`home-${type}-${Date.now()}-${Math.random().toString(36).slice(2,6)}`,type,enabled:true,label:meta.name,kicker:type==='custom'?'TYRKAID':'',title:type==='custom'?'自定义内容区':'',text:'',tone:meta.color,image_url:'',button_text:'',button_link:'/products'};
+}
+function HomeSectionBuilder({sections,onChange,previewMap,upload}){
+ const list=Array.isArray(sections)?sections:[];
+ const[addType,setAddType]=useState('custom');
+ const update=(i,key,val)=>onChange(list.map((s,j)=>j===i?{...s,[key]:val}:s));
+ const move=(i,d)=>{const j=i+d;if(j<0||j>=list.length)return;const n=list.map(x=>({...x}));[n[i],n[j]]=[n[j],n[i]];onChange(n)};
+ const duplicate=i=>{const x=list[i],n={...x,id:`${x.type}-${Date.now()}-${Math.random().toString(36).slice(2,5)}`,label:(x.label||HOME_SECTION_META[x.type]?.name||'区块')+' 副本'};onChange([...list.slice(0,i+1),n,...list.slice(i+1)])};
+ const remove=i=>{if(confirm('确定删除这个首页功能区？'))onChange(list.filter((_,j)=>j!==i))};
+ const add=()=>onChange([...list,newHomeSection(addType)]);
+ return <div className="home-builder">
+  <div className="home-builder-head">
+   <div><span className="eyebrow">首页模块</span><h3>首页功能区</h3><p>前台将严格按照这里的上下顺序显示。不同颜色只用于后台区分模块。</p></div>
+   <div className="home-builder-add"><select value={addType} onChange={e=>setAddType(e.target.value)}>{Object.entries(HOME_SECTION_META).map(([k,v])=><option key={k} value={k}>{v.name}</option>)}</select><button type="button" className="btn btn-accent" onClick={add}><Plus size={15}/> 新建功能区</button></div>
+  </div>
+  <div className="home-section-list">
+   {list.map((sec,i)=>{
+    const meta=HOME_SECTION_META[sec.type]||HOME_SECTION_META.custom;
+    return <article className={'home-section-editor type-'+meta.color} key={sec.id||i}>
+     <div className="home-section-bar">
+      <div className="home-section-index"><span>{String(i+1).padStart(2,'0')}</span><div><strong>{sec.label||meta.name}</strong><small>{meta.description}</small></div></div>
+      <div className="home-section-actions">
+       <label className="home-enabled"><input type="checkbox" checked={sec.enabled!==false} onChange={e=>update(i,'enabled',e.target.checked)}/><span>{sec.enabled!==false?'显示':'隐藏'}</span></label>
+       <button type="button" onClick={()=>move(i,-1)} disabled={i===0}>↑</button>
+       <button type="button" onClick={()=>move(i,1)} disabled={i===list.length-1}>↓</button>
+       <button type="button" onClick={()=>duplicate(i)}>复制</button>
+       <button type="button" className="danger" onClick={()=>remove(i)}><Trash2 size={14}/></button>
+      </div>
+     </div>
+     <div className="home-section-editor-body">
+      <div className="form-grid">
+       <Field label="后台模块名称" value={sec.label||meta.name} onChange={v=>update(i,'label',v)}/>
+       <Field label="小标题 / 眉题" value={sec.kicker||''} onChange={v=>update(i,'kicker',v)} placeholder="留空则使用默认值"/>
+       <Field label="前台标题" value={sec.title||''} onChange={v=>update(i,'title',v)} placeholder="留空则使用默认值"/>
+       <label className="field">模块色调<select value={sec.tone||meta.color} onChange={e=>update(i,'tone',e.target.value)}><option value="white">白色</option><option value="blue">浅蓝</option><option value="amber">暖灰</option><option value="green">浅绿</option><option value="purple">浅紫</option><option value="navy">深色</option><option value="gray">浅灰</option></select></label>
+      </div>
+      <Field label="模块说明文字" value={sec.text||''} onChange={v=>update(i,'text',v)} multiline rows={3} placeholder="留空则使用该功能区原有内容"/>
+      {sec.type==='custom'&&<>
+       <ImageUploader label="自定义模块图片" value={sec.image_url||''} previewMap={previewMap} onUploaded={v=>update(i,'image_url',v)} upload={upload}/>
+       <div className="form-grid"><Field label="按钮文字" value={sec.button_text||''} onChange={v=>update(i,'button_text',v)}/><Field label="按钮链接" value={sec.button_link||''} onChange={v=>update(i,'button_link',v)}/></div>
+      </>}
+      {sec.type==='hero'&&<div className="home-section-tip">Banner 的图片和按钮仍在上方“首页 Banner”标签中设置；这里控制它在首页的位置、显示状态和标题覆盖。</div>}
+      {sec.type==='featured'&&<div className="home-section-tip">产品来源：产品管理中勾选“首页推荐”的产品。</div>}
+      {sec.type==='categories'&&<div className="home-section-tip">内容来源：后台“产品分类”。</div>}
+      {sec.type==='news'&&<div className="home-section-tip">内容来源：后台已发布新闻。</div>}
+     </div>
+    </article>
+   })}
+  </div>
+ </div>
 }
 function SiteSettingsEditor({value,onChange,onSave,busy,previewMap,upload,navigation}){
  const s={...DEFAULT_SETTINGS,...value};
  const set=(k,v)=>onChange({...s,[k]:v});
- const[open,setOpen]=useState('brand');
+ const[t,setT]=useState('brand');
  const[previewMode,setPreviewMode]=useState('desktop');
+ const sections=Array.isArray(s.home_sections)&&s.home_sections.length?s.home_sections:DEFAULT_SETTINGS.home_sections;
+ const tabs=[
+  ['brand','公司与品牌'],['header','顶部 Header'],['hero','首页 Banner'],['home','首页功能区'],['about','关于我们'],['contact','联系我们'],['footer','页脚 Footer']
+ ];
  const navPreview=[...navigation].filter(x=>x.visible!==false).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).slice(0,6);
- return <form className="site-customizer" onSubmit={e=>{e.preventDefault();onSave(s)}}>
+ return <form className="site-customizer horizontal-customizer" onSubmit={e=>{e.preventDefault();onSave(s)}}>
   <div className="customizer-topbar">
-   <div><span className="eyebrow">网站装修</span><h2>主题自定义</h2><p>像 Shopify / WordPress 自定义器一样，按区域修改并实时预览。</p></div>
-   <div className="customizer-save">
-    <span>{busy?'正在保存…':'修改会自动保存到 D1'}</span>
-    <button className="btn btn-accent" disabled={busy}><Save size={16}/>{busy?'保存中…':'保存'}</button>
+   <div><span className="eyebrow">网站装修</span><h2>主题自定义</h2><p>顶部切换区域；首页模块可排序、复制、新建和删除。</p></div>
+   <div className="customizer-save"><span>{busy?'正在保存…':'修改会自动保存到 D1'}</span><button className="btn btn-accent" disabled={busy}><Save size={16}/>{busy?'保存中…':'保存'}</button></div>
+  </div>
+
+  <nav className="customizer-tabs">{tabs.map(([id,label])=><button type="button" key={id} className={t===id?'active':''} onClick={()=>setT(id)}>{label}</button>)}</nav>
+
+  <section className="customizer-tab-panel">
+   {t==='brand'&&<div className="customizer-panel-card panel-brand">
+    <div className="customizer-panel-title"><span>01</span><div><h3>公司与品牌</h3><p>公司名称、Logo 和浏览器图标。</p></div></div>
+    <div className="form-grid"><Field label="公司中文名称" value={s.company_name_cn} onChange={v=>set('company_name_cn',v)}/><Field label="公司英文名称" value={s.company_name_en} onChange={v=>set('company_name_en',v)}/><Field label="品牌名称" value={s.brand_name} onChange={v=>set('brand_name',v)}/><Field label="品牌副标题" value={s.brand_subtitle} onChange={v=>set('brand_subtitle',v)}/></div>
+    <div className="customizer-two-col"><ImageUploader label="Logo" value={s.logo_url} previewMap={previewMap} onUploaded={v=>set('logo_url',v)} upload={upload}/><ImageUploader label="浏览器图标 Favicon" value={s.favicon_url} previewMap={previewMap} onUploaded={v=>set('favicon_url',v)} upload={upload}/></div>
+    <div className="customizer-inline-settings"><label className="field">Logo 显示方式<select value={s.logo_fit||'contain'} onChange={e=>set('logo_fit',e.target.value)}><option value="contain">适应（完整显示）</option><option value="frame">全框（尽量放大）</option><option value="cover">填充（可能裁切）</option><option value="center">原比例居中</option><option value="fill">拉伸铺满</option></select></label><Field label="最大宽度（px）" type="number" value={s.logo_max_width||220} onChange={v=>set('logo_max_width',Math.max(140,Math.min(Number(v)||220,300)))}/><Field label="最大高度（px）" type="number" value={s.logo_max_height||72} onChange={v=>set('logo_max_height',Math.max(48,Math.min(Number(v)||72,96)))}/></div>
+   </div>}
+
+   {t==='header'&&<div className="customizer-panel-card panel-header">
+    <div className="customizer-panel-title"><span>02</span><div><h3>顶部 Header</h3><p>宣传语、服务热线、微信二维码和悬浮联系方式。</p></div></div>
+    <Field label="顶部主宣传语" value={s.header_tagline} onChange={v=>set('header_tagline',v)}/>
+    <Field label="主营产品说明" value={s.header_products_text} onChange={v=>set('header_products_text',v)} multiline rows={3}/>
+    <div className="form-grid"><Field label="服务热线标题" value={s.service_hotline_label} onChange={v=>set('service_hotline_label',v)}/><Field label="服务热线 1" value={s.service_hotline_1} onChange={v=>set('service_hotline_1',v)}/><Field label="服务热线 2" value={s.service_hotline_2} onChange={v=>set('service_hotline_2',v)}/><Field label="微信显示名称" value={s.contact_wechat_label||'微信'} onChange={v=>set('contact_wechat_label',v)}/></div>
+    <ImageUploader label="顶部 / 悬浮窗微信二维码" value={s.contact_wechat_qr_url} previewMap={previewMap} onUploaded={v=>set('contact_wechat_qr_url',v)} upload={upload}/>
+    <label className="customizer-switch"><span><strong>悬浮联系方式</strong><small>在前台页面持续显示联系方式入口</small></span><input type="checkbox" checked={s.hotline_sticky_enabled!==false} onChange={e=>set('hotline_sticky_enabled',e.target.checked)}/></label>
+   </div>}
+
+   {t==='hero'&&<div className="customizer-panel-card panel-hero">
+    <div className="customizer-panel-title"><span>03</span><div><h3>首页 Banner</h3><p>首屏图片、标题、说明和按钮。</p></div></div>
+    <div className="customizer-two-col"><div><Field label="顶部小标题" value={s.hero_kicker} onChange={v=>set('hero_kicker',v)}/><Field label="Banner 主标题" value={s.hero_title} onChange={v=>set('hero_title',v)}/><Field label="Banner 说明" value={s.hero_subtitle} onChange={v=>set('hero_subtitle',v)} multiline rows={4}/></div><ImageUploader label="Banner 图片" value={s.hero_image_url} previewMap={previewMap} onUploaded={v=>set('hero_image_url',v)} upload={upload}/></div>
+    <div className="form-grid"><Field label="主按钮文字" value={s.hero_primary_text} onChange={v=>set('hero_primary_text',v)}/><Field label="主按钮链接" value={s.hero_primary_link} onChange={v=>set('hero_primary_link',v)}/><Field label="次按钮文字" value={s.hero_secondary_text} onChange={v=>set('hero_secondary_text',v)}/><Field label="次按钮链接" value={s.hero_secondary_link} onChange={v=>set('hero_secondary_link',v)}/></div>
+   </div>}
+
+   {t==='home'&&<HomeSectionBuilder sections={sections} onChange={v=>set('home_sections',v)} previewMap={previewMap} upload={upload}/>}
+
+   {t==='about'&&<div className="customizer-panel-card panel-about">
+    <div className="customizer-panel-title"><span>05</span><div><h3>关于我们</h3><p>页面标题、正文和品牌图片。</p></div></div>
+    <div className="form-grid"><Field label="页面标题" value={s.about_page_title} onChange={v=>set('about_page_title',v)}/><Field label="页面简介" value={s.about_page_intro} onChange={v=>set('about_page_intro',v)}/></div>
+    <Field label="品牌眉题 / 英文标题" value={s.about_eyebrow} onChange={v=>set('about_eyebrow',v)}/>
+    <Field label="正文标题" value={s.about_title} onChange={v=>set('about_title',v)}/>
+    <Field label="关于我们正文" value={s.about_body} onChange={v=>set('about_body',v)} multiline rows={10}/>
+    <ImageUploader label="关于我们图片" value={s.about_image_url} previewMap={previewMap} onUploaded={v=>set('about_image_url',v)} upload={upload}/>
+   </div>}
+
+   {t==='contact'&&<div className="customizer-panel-card panel-contact">
+    <div className="customizer-panel-title"><span>06</span><div><h3>联系我们</h3><p>电话、邮箱、地址和支持模块。</p></div></div>
+    <div className="form-grid"><Field label="页面标题" value={s.contact_page_title} onChange={v=>set('contact_page_title',v)}/><Field label="页面简介" value={s.contact_page_intro} onChange={v=>set('contact_page_intro',v)}/><Field label="联系电话" value={s.contact_phone} onChange={v=>set('contact_phone',v)}/><Field label="联系邮箱" value={s.contact_email} onChange={v=>set('contact_email',v)}/><Field label="WhatsApp" value={s.contact_whatsapp} onChange={v=>set('contact_whatsapp',v)}/></div>
+    <Field label="公司地址" value={s.contact_address} onChange={v=>set('contact_address',v)} multiline rows={3}/>
+    <div className="customizer-inline-settings"><Field label="支持模块标题" value={s.contact_support_title} onChange={v=>set('contact_support_title',v)}/><Field label="支持模块说明" value={s.contact_support_body} onChange={v=>set('contact_support_body',v)} multiline rows={3}/></div>
+   </div>}
+
+   {t==='footer'&&<div className="customizer-panel-card panel-footer">
+    <div className="customizer-panel-title"><span>07</span><div><h3>页脚 Footer</h3><p>页脚公司简介和版权文字。</p></div></div>
+    <Field label="页脚公司简介" value={s.footer_description} onChange={v=>set('footer_description',v)} multiline rows={5}/>
+    <Field label="版权文字" value={s.footer_copyright} onChange={v=>set('footer_copyright',v)}/>
+   </div>}
+  </section>
+
+  <section className="customizer-preview-bottom">
+   <div className="customizer-preview-toolbar">
+    <div><Eye size={15}/><span>实时预览</span></div>
+    <div className="preview-device-switch"><button type="button" className={previewMode==='desktop'?'active':''} onClick={()=>setPreviewMode('desktop')}>桌面</button><button type="button" className={previewMode==='mobile'?'active':''} onClick={()=>setPreviewMode('mobile')}>手机</button></div>
    </div>
-  </div>
-
-  <div className="customizer-workspace">
-   <aside className="customizer-sidebar">
-    <div className="customizer-sidebar-head"><strong>页面设置</strong><small>选择一个区域进行编辑</small></div>
-
-    <CustomizerSection id="brand" title="公司与品牌" description="公司名、Logo、Favicon" open={open} setOpen={setOpen}>
-     <div className="form-grid">
-      <Field label="公司中文名称" value={s.company_name_cn} onChange={v=>set('company_name_cn',v)}/>
-      <Field label="公司英文名称" value={s.company_name_en} onChange={v=>set('company_name_en',v)}/>
-      <Field label="品牌名称" value={s.brand_name} onChange={v=>set('brand_name',v)}/>
-      <Field label="品牌副标题" value={s.brand_subtitle} onChange={v=>set('brand_subtitle',v)}/>
+   <div className={'customizer-preview-stage '+previewMode}>
+    <div className="preview-browser customizer-browser">
+     <div className="preview-header preview-masthead">
+      <div className={'preview-logo '+(s.logo_url?'has-image logo-fit-'+(s.logo_fit||'contain'):'')}>{s.logo_url?<img src={previewMap[s.logo_url]||s.logo_url}/>:<><b>{s.brand_name?.slice(0,1)||'T'}</b><span>{s.brand_name}<small>{s.brand_subtitle}</small></span></>}</div>
+      <div className="preview-header-copy"><b>{s.header_tagline}</b><small>{s.header_products_text}</small></div>
+      <div className="preview-hotline"><span>{s.service_hotline_label||'服务热线'}</span><b>{s.service_hotline_1}</b></div>
+      {s.contact_wechat_qr_url&&<div className="preview-qr"><img src={previewMap[s.contact_wechat_qr_url]||s.contact_wechat_qr_url}/></div>}
      </div>
-     <ImageUploader label="Logo" value={s.logo_url} previewMap={previewMap} onUploaded={v=>set('logo_url',v)} upload={upload}/>
-     <div className="customizer-subcard">
-      <label className="field">Logo 显示方式
-       <select value={s.logo_fit||'contain'} onChange={e=>set('logo_fit',e.target.value)}>
-        <option value="contain">适应（完整显示）</option>
-        <option value="frame">全框（尽量放大）</option>
-        <option value="cover">填充（可能裁切）</option>
-        <option value="center">原比例居中</option>
-        <option value="fill">拉伸铺满</option>
-       </select>
-      </label>
-      <div className="form-grid">
-       <Field label="最大宽度（px）" type="number" value={s.logo_max_width||220} onChange={v=>set('logo_max_width',Math.max(140,Math.min(Number(v)||220,300)))}/>
-       <Field label="最大高度（px）" type="number" value={s.logo_max_height||72} onChange={v=>set('logo_max_height',Math.max(48,Math.min(Number(v)||72,96)))}/>
-      </div>
+     <div className="preview-nav-row">{navPreview.map(n=><span key={n.id||n.path}>{n.label}</span>)}</div>
+     <div className="builder-preview-sections">
+      {sections.filter(x=>x.enabled!==false).map((sec,i)=>{const meta=HOME_SECTION_META[sec.type]||HOME_SECTION_META.custom;return <div className={'builder-preview-section type-'+meta.color} key={sec.id||i}><span>{String(i+1).padStart(2,'0')}</span><div><strong>{sec.title||sec.label||meta.name}</strong><small>{meta.name}</small></div></div>})}
      </div>
-     <ImageUploader label="浏览器图标 Favicon" value={s.favicon_url} previewMap={previewMap} onUploaded={v=>set('favicon_url',v)} upload={upload}/>
-    </CustomizerSection>
-
-    <CustomizerSection id="header" title="顶部 Header" description="宣传语、服务热线、二维码" open={open} setOpen={setOpen}>
-     <Field label="顶部主宣传语" value={s.header_tagline} onChange={v=>set('header_tagline',v)}/>
-     <Field label="主营产品说明" value={s.header_products_text} onChange={v=>set('header_products_text',v)} multiline rows={3}/>
-     <div className="form-grid">
-      <Field label="服务热线标题" value={s.service_hotline_label} onChange={v=>set('service_hotline_label',v)}/>
-      <Field label="服务热线 1" value={s.service_hotline_1} onChange={v=>set('service_hotline_1',v)}/>
-      <Field label="服务热线 2" value={s.service_hotline_2} onChange={v=>set('service_hotline_2',v)}/>
-      <Field label="微信显示名称" value={s.contact_wechat_label||'微信'} onChange={v=>set('contact_wechat_label',v)}/>
-     </div>
-     <ImageUploader label="顶部 / 悬浮窗微信二维码" value={s.contact_wechat_qr_url} previewMap={previewMap} onUploaded={v=>set('contact_wechat_qr_url',v)} upload={upload}/>
-     <label className="customizer-switch"><span><strong>悬浮联系方式</strong><small>在前台页面持续显示联系方式入口</small></span><input type="checkbox" checked={s.hotline_sticky_enabled!==false} onChange={e=>set('hotline_sticky_enabled',e.target.checked)}/></label>
-    </CustomizerSection>
-
-    <CustomizerSection id="hero" title="首页 Banner" description="首屏文字、图片和按钮" open={open} setOpen={setOpen}>
-     <Field label="顶部小标题" value={s.hero_kicker} onChange={v=>set('hero_kicker',v)}/>
-     <Field label="Banner 主标题" value={s.hero_title} onChange={v=>set('hero_title',v)}/>
-     <Field label="Banner 说明" value={s.hero_subtitle} onChange={v=>set('hero_subtitle',v)} multiline rows={4}/>
-     <ImageUploader label="Banner 图片" value={s.hero_image_url} previewMap={previewMap} onUploaded={v=>set('hero_image_url',v)} upload={upload}/>
-     <div className="customizer-subcard">
-      <strong>按钮</strong>
-      <div className="form-grid">
-       <Field label="主按钮文字" value={s.hero_primary_text} onChange={v=>set('hero_primary_text',v)}/>
-       <Field label="主按钮链接" value={s.hero_primary_link} onChange={v=>set('hero_primary_link',v)}/>
-       <Field label="次按钮文字" value={s.hero_secondary_text} onChange={v=>set('hero_secondary_text',v)}/>
-       <Field label="次按钮链接" value={s.hero_secondary_link} onChange={v=>set('hero_secondary_link',v)}/>
-      </div>
-     </div>
-    </CustomizerSection>
-
-    <CustomizerSection id="home" title="首页内容" description="产品系列、推荐产品和内容结构" open={open} setOpen={setOpen}>
-     <div className="customizer-info-card">
-      <strong>产品系列</strong><p>首页产品系列自动读取“产品分类”，图片自动使用该分类下的产品图。</p>
-     </div>
-     <div className="customizer-info-card">
-      <strong>精选设备</strong><p>在“产品 → 编辑产品”中勾选“首页推荐”，并用“显示排序”控制顺序。</p>
-     </div>
-     <div className="customizer-info-card">
-      <strong>新闻</strong><p>首页新闻自动读取已发布的最新内容。</p>
-     </div>
-    </CustomizerSection>
-
-    <CustomizerSection id="about" title="关于我们" description="页面标题、正文和图片" open={open} setOpen={setOpen}>
-     <div className="form-grid">
-      <Field label="页面标题" value={s.about_page_title} onChange={v=>set('about_page_title',v)}/>
-      <Field label="页面简介" value={s.about_page_intro} onChange={v=>set('about_page_intro',v)}/>
-     </div>
-     <Field label="品牌眉题 / 英文标题" value={s.about_eyebrow} onChange={v=>set('about_eyebrow',v)}/>
-     <Field label="正文标题" value={s.about_title} onChange={v=>set('about_title',v)}/>
-     <Field label="关于我们正文" value={s.about_body} onChange={v=>set('about_body',v)} multiline rows={10}/>
-     <ImageUploader label="关于我们图片" value={s.about_image_url} previewMap={previewMap} onUploaded={v=>set('about_image_url',v)} upload={upload}/>
-    </CustomizerSection>
-
-    <CustomizerSection id="contact" title="联系我们" description="电话、邮箱、地址与支持信息" open={open} setOpen={setOpen}>
-     <div className="form-grid">
-      <Field label="页面标题" value={s.contact_page_title} onChange={v=>set('contact_page_title',v)}/>
-      <Field label="页面简介" value={s.contact_page_intro} onChange={v=>set('contact_page_intro',v)}/>
-      <Field label="联系电话" value={s.contact_phone} onChange={v=>set('contact_phone',v)}/>
-      <Field label="联系邮箱" value={s.contact_email} onChange={v=>set('contact_email',v)}/>
-      <Field label="WhatsApp" value={s.contact_whatsapp} onChange={v=>set('contact_whatsapp',v)}/>
-     </div>
-     <Field label="公司地址" value={s.contact_address} onChange={v=>set('contact_address',v)} multiline rows={3}/>
-     <div className="customizer-subcard">
-      <strong>右侧支持模块</strong>
-      <Field label="标题" value={s.contact_support_title} onChange={v=>set('contact_support_title',v)}/>
-      <Field label="说明" value={s.contact_support_body} onChange={v=>set('contact_support_body',v)} multiline rows={4}/>
-     </div>
-    </CustomizerSection>
-
-    <CustomizerSection id="footer" title="页脚 Footer" description="公司简介和版权文字" open={open} setOpen={setOpen}>
-     <Field label="页脚公司简介" value={s.footer_description} onChange={v=>set('footer_description',v)} multiline rows={5}/>
-     <Field label="版权文字" value={s.footer_copyright} onChange={v=>set('footer_copyright',v)}/>
-    </CustomizerSection>
-   </aside>
-
-   <section className="customizer-preview-panel">
-    <div className="customizer-preview-toolbar">
-     <div><Eye size={15}/><span>实时预览</span></div>
-     <div className="preview-device-switch">
-      <button type="button" className={previewMode==='desktop'?'active':''} onClick={()=>setPreviewMode('desktop')}>桌面</button>
-      <button type="button" className={previewMode==='mobile'?'active':''} onClick={()=>setPreviewMode('mobile')}>手机</button>
-     </div>
+     <div className="preview-contact"><h4>{s.contact_page_title}</h4><p>{s.contact_address}</p><p>{s.contact_phone} · {s.contact_email}</p></div>
     </div>
-    <div className={'customizer-preview-stage '+previewMode}>
-     <div className="preview-browser customizer-browser">
-      <div className="preview-header preview-masthead">
-       <div className={'preview-logo '+(s.logo_url?'has-image logo-fit-'+(s.logo_fit||'contain'):'')}>{s.logo_url?<img src={previewMap[s.logo_url]||s.logo_url}/>:<><b>{s.brand_name?.slice(0,1)||'T'}</b><span>{s.brand_name}<small>{s.brand_subtitle}</small></span></>}</div>
-       <div className="preview-header-copy"><b>{s.header_tagline}</b><small>{s.header_products_text}</small></div>
-       <div className="preview-hotline"><span>{s.service_hotline_label||'服务热线'}</span><b>{s.service_hotline_1}</b></div>
-       {s.contact_wechat_qr_url&&<div className="preview-qr"><img src={previewMap[s.contact_wechat_qr_url]||s.contact_wechat_qr_url}/></div>}
-      </div>
-      <div className="preview-nav-row">{navPreview.map(n=><span key={n.id||n.path}>{n.label}</span>)}</div>
-      <div className="preview-hero customizer-preview-hero">
-       <div><small>{s.hero_kicker}</small><h3>{s.hero_title}</h3><p>{s.hero_subtitle}</p><button type="button">{s.hero_primary_text||'按钮'}</button></div>
-       {s.hero_image_url?<img src={previewMap[s.hero_image_url]||s.hero_image_url}/>:<div className="preview-placeholder"><ImageIcon/></div>}
-      </div>
-      <div className="customizer-preview-products">
-       <small>产品系列</small><div>{['产品分类','精选设备','公司新闻'].map(x=><span key={x}>{x}</span>)}</div>
-      </div>
-      <div className="preview-about"><div><small>关于我们</small><h4>{s.about_title}</h4><p>{(s.about_body||'').slice(0,110)}{(s.about_body||'').length>110?'…':''}</p></div>{s.about_image_url?<img src={previewMap[s.about_image_url]||s.about_image_url}/>:<div className="preview-placeholder"><ImageIcon/></div>}</div>
-      <div className="preview-contact"><h4>{s.contact_page_title}</h4><p>{s.contact_address}</p><p>{s.contact_phone} · {s.contact_email}</p></div>
-     </div>
-    </div>
-   </section>
-  </div>
+   </div>
+  </section>
  </form>
 }
 
