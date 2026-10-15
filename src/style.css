@@ -2658,3 +2658,272 @@ button,
     min-height:230px!important;
   }
 }
+
+
+/* =========================================================
+   Product detail alignment correction
+   Overview + specifications move left to match more images
+   ========================================================= */
+
+/* All three detail sections use the normal page container width */
+.karee-detail-section>.container,
+#overview>.container,
+#specifications>.container,
+#product-images>.container{
+  max-width:var(--k-max)!important;
+  width:100%!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+/* Override the previous centered narrow container */
+#overview .karee-detail-narrow,
+#specifications .karee-detail-narrow,
+.karee-detail-section .karee-detail-narrow{
+  max-width:var(--k-max)!important;
+}
+
+/* Keep the overview copy readable while preserving the shared left edge */
+#overview p{
+  max-width:860px;
+}
+
+/* Technical table starts on the same left line */
+#specifications .karee-spec-table{
+  width:100%;
+  max-width:100%;
+}
+
+/* More product images remain full-width and unchanged */
+#product-images .karee-detail-images{
+  width:100%!important;
+  max-width:none!important;
+}
+
+@media(max-width:720px){
+  .karee-detail-section>.container,
+  #overview>.container,
+  #specifications>.container,
+  #product-images>.container{
+    max-width:none!important;
+  }
+}
+
+
+/* =========================================================
+   Refined industrial header
+   Balanced logo / brand message / contact information
+   ========================================================= */
+
+/* Overall header canvas: wide enough, but no excessive empty gaps */
+.restored-header .masthead-inner,
+.restored-header .topbar-inner{
+  max-width:1460px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+/* First row: three visually balanced zones */
+.restored-header .masthead-inner{
+  min-height:98px!important;
+  grid-template-columns:230px minmax(520px,1fr) 270px!important;
+  gap:30px!important;
+  padding-top:8px!important;
+  padding-bottom:8px!important;
+}
+
+/* Logo: substantial but not oversized */
+.restored-header .masthead-inner>.logo{
+  justify-self:start!important;
+}
+.restored-header .logo.logo-has-image{
+  width:225px!important;
+  max-width:225px!important;
+  min-width:200px!important;
+  height:74px!important;
+  max-height:74px!important;
+  min-height:64px!important;
+}
+.restored-header .logo.logo-has-image .logo-image{
+  object-position:left center!important;
+}
+
+/* Center copy: compact, aligned, with a subtle divider */
+.restored-header .masthead-copy{
+  max-width:720px!important;
+  width:100%!important;
+  justify-self:start!important;
+  padding-left:28px!important;
+  border-left:1px solid #dde5e8!important;
+}
+.restored-header .masthead-copy strong{
+  font-size:20px!important;
+  line-height:1.32!important;
+  letter-spacing:-.15px!important;
+  color:#16303d!important;
+  font-weight:800!important;
+  white-space:normal!important;
+}
+.restored-header .masthead-copy span{
+  margin-top:7px!important;
+  font-size:13px!important;
+  line-height:1.45!important;
+  color:#60717a!important;
+}
+
+/* Contact group: visually quieter than the brand message */
+.restored-header .masthead-hotline{
+  justify-self:end!important;
+  gap:11px!important;
+}
+.restored-header .masthead-hotline>svg{
+  width:40px!important;
+  height:40px!important;
+  padding:9px!important;
+  background:#f2f5f6!important;
+  color:#8f9da4!important;
+}
+.restored-header .masthead-hotline span{
+  font-size:12px!important;
+  margin-bottom:4px!important;
+  color:#556873!important;
+}
+.restored-header .masthead-hotline a{
+  font-size:17px!important;
+  line-height:1.28!important;
+  letter-spacing:.2px!important;
+  color:#1656bb!important;
+  font-weight:800!important;
+}
+
+/* Second row: cleaner industrial navigation */
+.restored-header .topbar{
+  border-top:1px solid #eef1f2!important;
+  border-bottom:1px solid #dde5e8!important;
+}
+.restored-header .topbar-inner{
+  min-height:54px!important;
+  height:54px!important;
+  justify-content:center!important;
+}
+.restored-nav{
+  width:auto!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:stretch!important;
+  gap:34px!important;
+}
+.restored-nav a{
+  position:relative!important;
+  min-height:54px!important;
+  padding:0 13px!important;
+  background:transparent!important;
+  color:#203742!important;
+  font-size:14px!important;
+  font-weight:750!important;
+}
+.restored-nav a:hover{
+  background:transparent!important;
+  color:#1557c4!important;
+}
+.restored-nav a.active{
+  background:transparent!important;
+  color:#1557c4!important;
+}
+.restored-nav a.active::after{
+  content:"";
+  position:absolute;
+  left:13px;
+  right:13px;
+  bottom:-1px;
+  height:3px;
+  background:#1557c4;
+}
+
+/* Slight visual refinement */
+.site-header.restored-header{
+  box-shadow:0 3px 14px rgba(15,47,61,.04)!important;
+}
+
+/* Medium desktop */
+@media(max-width:1280px){
+  .restored-header .masthead-inner{
+    grid-template-columns:210px minmax(0,1fr) 245px!important;
+    gap:22px!important;
+  }
+  .restored-header .logo.logo-has-image{
+    width:205px!important;
+    min-width:185px!important;
+    height:70px!important;
+  }
+  .restored-header .masthead-copy{
+    padding-left:22px!important;
+  }
+  .restored-header .masthead-copy strong{
+    font-size:18px!important;
+  }
+  .restored-header .masthead-copy span{
+    font-size:12px!important;
+  }
+  .restored-header .masthead-hotline a{
+    font-size:16px!important;
+  }
+  .restored-nav{
+    gap:24px!important;
+  }
+}
+
+/* Tablet: keep first row readable instead of squeezing three blocks unnaturally */
+@media(max-width:980px){
+  .restored-header .masthead-inner{
+    grid-template-columns:190px minmax(0,1fr)!important;
+    min-height:90px!important;
+    gap:20px!important;
+  }
+  .restored-header .masthead-hotline{
+    display:none!important;
+  }
+  .restored-header .logo.logo-has-image{
+    width:185px!important;
+    min-width:170px!important;
+    height:64px!important;
+  }
+  .restored-nav{
+    gap:18px!important;
+  }
+  .restored-nav a{
+    padding:0 10px!important;
+    font-size:13px!important;
+  }
+}
+
+/* Mobile behavior stays compact */
+@media(max-width:680px){
+  .restored-header .masthead-inner{
+    grid-template-columns:1fr!important;
+    min-height:auto!important;
+  }
+  .restored-header .masthead-copy{
+    display:none!important;
+  }
+  .restored-header .logo.logo-has-image{
+    width:200px!important;
+    max-width:70vw!important;
+    height:62px!important;
+    justify-self:center!important;
+  }
+  .restored-header .mobile-toggle{
+    display:inline-flex!important;
+  }
+  .restored-nav{
+    width:100%!important;
+    gap:0!important;
+  }
+  .restored-nav a.active::after{
+    display:none!important;
+  }
+  .restored-nav a.active{
+    background:#f3f7fb!important;
+    color:#1557c4!important;
+  }
+}
