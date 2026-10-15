@@ -691,10 +691,7 @@ function MediaLibrary({upload,busy,setBusy,setMsg}){
  const fmt=n=>n>=1024*1024?(n/1024/1024).toFixed(1)+' MB':n>=1024?(n/1024).toFixed(0)+' KB':n+' B';
  const selectedSet=new Set(selected);
  const currentItems=items.filter(x=>x.folder_path===currentFolder&&(!query||x.name.toLowerCase().includes(query.toLowerCase())||x.path.toLowerCase().includes(query.toLowerCase())));
- const childFolders=folders.filter(f=>{
-  if(!f.startsWith(currentFolder+'/'))return false;
-  return f.slice(currentFolder.length+1).split('/').length===1;
- });
+ const childFolders=folders.filter(f=>f.startsWith(currentFolder+'/')&&f.slice(currentFolder.length+1).split('/').length===1);
  const rootLabel=f=>f==='products'?'产品图片':f==='news'?'新闻图片':f==='site'?'网站装修图片':f.split('/').pop();
 
  function toggle(path){setSelected(v=>v.includes(path)?v.filter(x=>x!==path):[...v,path])}
@@ -757,19 +754,18 @@ function MediaLibrary({upload,busy,setBusy,setMsg}){
  }
  async function syncCategoryFolders(){await act({action:'sync_categories'},'产品分类文件夹已同步。')}
 
- const productFolders=folders.filter(f=>f==='products'||f.startsWith('products/'));
- const otherRoots=['news','site'];
- return <div className="media-manager">
-  <aside className="media-folder-sidebar">
-   <div className="media-folder-title"><span>媒体库</span><button type="button" onClick={createFolder} title="在当前目录新建子文件夹"><Plus size={15}/></button></div>
-   <button type="button" className={currentFolder==='products'?'active root':''} onClick={()=>{setCurrentFolder('products');setSelected([])}}>产品图片</button>
-   {productFolders.filter(f=>f!=='products').map(f=>{
-    const depth=f.split('/').length-1;
-    return <button type="button" key={f} className={currentFolder===f?'active':''} style={{paddingLeft:14+depth*14}} onClick={()=>{setCurrentFolder(f);setSelected([])}}>{f.split('/').pop()}</button>
-   })}
-   {otherRoots.map(f=><button type="button" key={f} className={currentFolder===f?'active root':''} onClick={()=>{setCurrentFolder(f);setSelected([])}}>{rootLabel(f)}</button>)}
-   <button type="button" className="sync-folders" onClick={syncCategoryFolders}>同步产品分类文件夹</button>
-  </aside>
+ const rootTabs=[['products','产品图片'],['news','新闻图片'],['site','网站装修图片']];
+ return <div className="media-manager media-manager-horizontal">
+  <div className="media-top-tabs">
+   <div className="media-top-tab-group">
+    <span className="media-top-title">媒体库</span>
+    {rootTabs.map(([f,label])=><button type="button" key={f} className={currentFolder===f||currentFolder.startsWith(f+'/')?'active':''} onClick={()=>{setCurrentFolder(f);setSelected([])}}>{label}</button>)}
+   </div>
+   <div className="media-top-actions">
+    <button type="button" onClick={syncCategoryFolders}>同步产品分类文件夹</button>
+    <button type="button" className="media-add-folder" onClick={createFolder}><Plus size={16}/> 新建文件夹</button>
+   </div>
+  </div>
 
   <section className="media-manager-main">
    <div className="media-pathbar">
@@ -804,7 +800,7 @@ function MediaLibrary({upload,busy,setBusy,setMsg}){
     </div>
    </div>
 
-   <p className="media-note">移动或重命名“使用中”的图片时，系统会同步修改 D1 中的产品、新闻和网站设置引用，避免前台断图。文件夹由 GitHub 路径管理，不额外占用 D1。</p>
+   <p className="media-note">移动或重命名“使用中”的图片时，系统会同步修改 D1 中的产品、新闻和网站设置引用，避免前台断图。</p>
 
    {loading?<div className="empty">正在读取 GitHub 媒体库…</div>:currentItems.length?<div className="media-grid">{currentItems.map(x=><article className={'media-card '+(x.in_use?'is-used':'')} key={x.path}>
     <label className="media-check"><input type="checkbox" checked={selectedSet.has(x.path)} onChange={()=>toggle(x.path)}/></label>
