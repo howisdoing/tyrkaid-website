@@ -4488,3 +4488,50 @@ button,
     height:360px!important;
   }
 }
+
+
+/* ===== Customizer top tabs: larger and better proportioned ===== */
+.customizer-tabs{
+  min-height:64px!important;
+  align-items:stretch!important;
+  padding-left:28px!important;
+  padding-right:28px!important;
+}
+.customizer-tabs button{
+  min-height:64px!important;
+  padding:0 22px!important;
+  font-size:13.5px!important;
+  font-weight:800!important;
+  color:#536873!important;
+  letter-spacing:.1px!important;
+  border-bottom-width:4px!important;
+}
+.customizer-tabs button:hover{
+  color:#23414e!important;
+  background:#f8fafb!important;
+}
+.customizer-tabs button.active{
+  color:#135cb8!important;
+  background:#f5f9fd!important;
+  border-bottom-color:#1d67bc!important;
+}
+@media(max-width:980px){
+  .customizer-tabs{
+    min-height:58px!important;
+  }
+  .customizer-tabs button{
+    min-height:58px!important;
+    padding:0 18px!important;
+    font-size:12.5px!important;
+  }
+}
+@media(max-width:680px){
+  .customizer-tabs{
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  .customizer-tabs button{
+    padding:0 14px!important;
+    font-size:12px!important;
+  }
+}
