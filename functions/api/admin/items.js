@@ -3,6 +3,12 @@ import {allCatalog,parseProduct,parseNavigation} from '../../_lib/db.js';
 const allowed=new Set(['categories','products','news','settings','navigation']);
 const num=v=>Number.isFinite(Number(v))?Number(v):0;
 async function body(request){return request.json()}
+async function ensureCategoryImageColumn(DB){
+ try{
+  const info=await DB.prepare('PRAGMA table_info(categories)').all();
+  if(!(info.results||[]).some(x=>x.name==='image_url'))await DB.prepare("ALTER TABLE categories ADD COLUMN image_url TEXT DEFAULT ''").run();
+ }catch{}
+}
 export async function onRequest({request,env}){
  if(!(await validSession(request,env)))return json({error:'Unauthorized'},401);
  const url=new URL(request.url),type=url.searchParams.get('type');if(!allowed.has(type))return json({error:'Invalid type'},400);
@@ -15,14 +21,14 @@ export async function onRequest({request,env}){
    return json(p||{});
   }
   if(request.method==='POST'){
-   if(type==='categories'){const r=await env.DB.prepare('INSERT INTO categories(name,slug,summary,sort_order) VALUES(?,?,?,?) RETURNING *').bind(p.name,p.slug,p.summary||'',num(p.sort_order)).first();return json(r,201)}
+   if(type==='categories'){await ensureCategoryImageColumn(env.DB);const r=await env.DB.prepare('INSERT INTO categories(name,slug,summary,image_url,sort_order) VALUES(?,?,?,?,?) RETURNING *').bind(p.name,p.slug,p.summary||'',p.image_url||'',num(p.sort_order)).first();return json(r,201)}
    if(type==='products'){const r=await env.DB.prepare('INSERT INTO products(model,name,slug,category_id,summary,description,specs_json,images_json,featured,sort_order) VALUES(?,?,?,?,?,?,?,?,?,?) RETURNING *').bind(p.model,p.name,p.slug,num(p.category_id),p.summary||'',p.description||'',JSON.stringify(p.specs||{}),JSON.stringify({main:Array.isArray(p.images)?p.images:[],detail:Array.isArray(p.detail_images)?p.detail_images:[]}),p.featured?1:0,num(p.sort_order)).first();return json(parseProduct(r),201)}
    if(type==='navigation'){const r=await env.DB.prepare('INSERT INTO navigation(label,path,sort_order,visible) VALUES(?,?,?,?) RETURNING *').bind(p.label,p.path,num(p.sort_order),p.visible===false?0:1).first();return json(parseNavigation(r),201)}
    const r=await env.DB.prepare('INSERT INTO news(title,slug,excerpt,body,cover_url,status,published_at) VALUES(?,?,?,?,?,?,?) RETURNING *').bind(p.title,p.slug,p.excerpt||'',p.body||'',p.cover_url||'',p.status||'draft',p.published_at||new Date().toISOString()).first();return json(r,201)
   }
   if(request.method==='PUT'){
    const id=num(p.id);if(!id)return json({error:'Missing id'},400);
-   if(type==='categories'){const r=await env.DB.prepare('UPDATE categories SET name=?,slug=?,summary=?,sort_order=?,updated_at=CURRENT_TIMESTAMP WHERE id=? RETURNING *').bind(p.name,p.slug,p.summary||'',num(p.sort_order),id).first();return json(r)}
+   if(type==='categories'){await ensureCategoryImageColumn(env.DB);const r=await env.DB.prepare('UPDATE categories SET name=?,slug=?,summary=?,image_url=?,sort_order=?,updated_at=CURRENT_TIMESTAMP WHERE id=? RETURNING *').bind(p.name,p.slug,p.summary||'',p.image_url||'',num(p.sort_order),id).first();return json(r)}
    if(type==='products'){const r=await env.DB.prepare('UPDATE products SET model=?,name=?,slug=?,category_id=?,summary=?,description=?,specs_json=?,images_json=?,featured=?,sort_order=?,updated_at=CURRENT_TIMESTAMP WHERE id=? RETURNING *').bind(p.model,p.name,p.slug,num(p.category_id),p.summary||'',p.description||'',JSON.stringify(p.specs||{}),JSON.stringify({main:Array.isArray(p.images)?p.images:[],detail:Array.isArray(p.detail_images)?p.detail_images:[]}),p.featured?1:0,num(p.sort_order),id).first();return json(parseProduct(r))}
    if(type==='navigation'){const r=await env.DB.prepare('UPDATE navigation SET label=?,path=?,sort_order=?,visible=?,updated_at=CURRENT_TIMESTAMP WHERE id=? RETURNING *').bind(p.label,p.path,num(p.sort_order),p.visible===false?0:1,id).first();return json(parseNavigation(r))}
    const r=await env.DB.prepare('UPDATE news SET title=?,slug=?,excerpt=?,body=?,cover_url=?,status=?,published_at=?,updated_at=CURRENT_TIMESTAMP WHERE id=? RETURNING *').bind(p.title,p.slug,p.excerpt||'',p.body||'',p.cover_url||'',p.status||'draft',p.published_at||new Date().toISOString(),id).first();return json(r)

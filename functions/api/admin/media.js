@@ -60,6 +60,7 @@ async function commitTree(env,{branch,commitSha,treeSha},entries,message){
 }
 function usageMap(catalog){
   const map=new Map(),add=(url,label)=>{if(!url)return;const key=url.startsWith('/')?url:'/'+url;const arr=map.get(key)||[];if(!arr.includes(label))arr.push(label);map.set(key,arr)};
+  for(const c of catalog.categories||[])add(c.image_url,`产品分类：${c.name}`);
   for(const p of catalog.products||[]){for(const u of p.images||[])add(u,`产品主图：${p.model||p.name}`);for(const u of p.detail_images||[])add(u,`产品详情图：${p.model||p.name}`)}
   for(const n of catalog.news||[])add(n.cover_url,`新闻：${n.title}`);
   const s=catalog.settings||{};
@@ -76,6 +77,10 @@ async function updateReferences(DB,pathMap){
   if(!DB||!pathMap.size)return;
   const urlMap=new Map([...pathMap.entries()].map(([a,b])=>[publicUrl(a),publicUrl(b)]));
   const statements=[];
+  try{
+    const cats=await DB.prepare('SELECT id,image_url FROM categories').all();
+    for(const r of cats.results||[]){const next=urlMap.get(r.image_url);if(next)statements.push(DB.prepare('UPDATE categories SET image_url=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').bind(next,r.id))}
+  }catch{}
   const prods=await DB.prepare('SELECT id,images_json FROM products').all();
   for(const r of prods.results||[]){
     let raw;try{raw=JSON.parse(r.images_json||'[]')}catch{continue}
