@@ -2517,3 +2517,144 @@ button,
     padding:7px!important;
   }
 }
+
+
+/* =========================================================
+   Final polish: product images / nav spacing / detail alignment
+   ========================================================= */
+
+/* 1) Header navigation: bring the five items closer together */
+.restored-nav{
+  justify-content:center!important;
+  gap:42px!important;
+}
+.restored-nav a{
+  padding:0 10px!important;
+  min-width:auto!important;
+}
+@media(max-width:1100px){
+  .restored-nav{
+    gap:24px!important;
+  }
+  .restored-nav a{
+    padding:0 8px!important;
+  }
+}
+@media(max-width:680px){
+  .restored-nav{
+    gap:0!important;
+  }
+  .restored-nav a{
+    padding:0 20px!important;
+  }
+}
+
+/* 2) Homepage selected products + product center: never crop or enlarge product images */
+.karee-product-card:hover .product-img{
+  transform:none!important;
+}
+.karee-product-card .product-media,
+.karee-selected .karee-product-card .product-media,
+.karee-catalog .karee-product-card .product-media{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  aspect-ratio:4/3!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:14px!important;
+  background:#f5f7f7!important;
+}
+.karee-product-card .product-img,
+.karee-selected .karee-product-card .product-img,
+.karee-catalog .karee-product-card .product-img{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  padding:0!important;
+  margin:auto!important;
+  transform:none!important;
+}
+
+/* Give wide machinery a little more breathing room */
+.karee-selected .karee-product-card .product-media,
+.karee-catalog .karee-product-card .product-media{
+  padding:18px!important;
+}
+
+/* 3) Product detail: overview / specs / more images use the same content width */
+.karee-detail-section>.container,
+#overview>.container,
+#specifications>.container,
+#product-images>.container{
+  max-width:860px!important;
+}
+.karee-detail-section .karee-overline,
+.karee-detail-section h2,
+.karee-detail-section .karee-detail-intro{
+  margin-left:0!important;
+  margin-right:0!important;
+}
+.karee-detail-images{
+  width:100%!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:16px!important;
+}
+.karee-detail-images button{
+  width:100%!important;
+  min-height:300px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  padding:14px!important;
+  background:#f5f7f7!important;
+}
+.karee-detail-images img{
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  padding:0!important;
+  margin:auto!important;
+}
+
+/* Main product gallery remains full-image-first */
+.karee-gallery-main{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+.karee-gallery-main>img{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  margin:auto!important;
+}
+
+@media(max-width:720px){
+  #product-images>.container,
+  #overview>.container,
+  #specifications>.container,
+  .karee-detail-section>.container{
+    max-width:none!important;
+  }
+  .karee-detail-images{
+    grid-template-columns:1fr!important;
+  }
+  .karee-detail-images button{
+    min-height:230px!important;
+  }
+}
