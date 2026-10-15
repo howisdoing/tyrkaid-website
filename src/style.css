@@ -1755,3 +1755,355 @@ button,
   .karee-footer-main{grid-template-columns:1fr;gap:28px}
   .admin-content{padding:24px 18px!important}
 }
+
+
+/* =========================================================
+   Stable two-row header + global floating contact
+   ========================================================= */
+.site-header.restored-header{
+  position:sticky!important;
+  top:0;
+  z-index:120!important;
+  background:#fff!important;
+  backdrop-filter:none!important;
+  border-bottom:0!important;
+  box-shadow:0 1px 0 #e7ecee!important;
+}
+.restored-header .masthead{
+  background:#fff;
+  border-bottom:1px solid #e7ecee;
+}
+.restored-header .masthead-inner{
+  min-height:108px!important;
+  display:grid!important;
+  grid-template-columns:minmax(240px,300px) minmax(0,1fr) minmax(270px,330px)!important;
+  align-items:center!important;
+  gap:34px!important;
+}
+.restored-header .masthead-inner>.logo{
+  justify-self:start!important;
+}
+.restored-header .logo.logo-has-image{
+  width:min(var(--logo-max-w,290px),285px)!important;
+  max-width:285px!important;
+  min-width:220px!important;
+  height:88px!important;
+  max-height:88px!important;
+  min-height:70px!important;
+}
+.restored-header .logo.logo-has-image .logo-image{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:left center!important;
+}
+.restored-header .masthead-copy{
+  min-width:0;
+  padding-left:34px;
+  border-left:1px solid #e2e8ea;
+}
+.restored-header .masthead-copy strong{
+  display:block;
+  color:#17313e!important;
+  font-size:25px!important;
+  line-height:1.25!important;
+  font-weight:800!important;
+}
+.restored-header .masthead-copy span{
+  display:block;
+  margin-top:10px!important;
+  color:#4a606b!important;
+  font-size:15px!important;
+  line-height:1.5!important;
+}
+.restored-header .masthead-hotline{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:14px!important;
+}
+.restored-header .masthead-hotline>svg{
+  width:48px!important;
+  height:48px!important;
+  padding:11px!important;
+  border-radius:50%!important;
+  background:#f0f4f5!important;
+  color:#98a5ab!important;
+}
+.restored-header .masthead-hotline>div{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+}
+.restored-header .masthead-hotline span{
+  margin-bottom:5px!important;
+  color:#304954!important;
+  font-size:14px!important;
+}
+.restored-header .masthead-hotline a{
+  color:#1255c7!important;
+  font-size:22px!important;
+  line-height:1.22!important;
+  font-weight:900!important;
+}
+
+.restored-header .topbar{
+  position:relative!important;
+  z-index:5!important;
+  background:#fff!important;
+  border-bottom:1px solid #e7ecee!important;
+}
+.restored-header .topbar-inner{
+  min-height:62px!important;
+  height:62px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.restored-nav{
+  width:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:0!important;
+}
+.restored-nav a{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:62px!important;
+  padding:0 28px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#fff!important;
+  color:#18313e!important;
+  font-size:15px!important;
+  font-weight:800!important;
+}
+.restored-nav a:hover{
+  color:#1459c8!important;
+  background:#f6f8f9!important;
+}
+.restored-nav a.active{
+  color:#fff!important;
+  background:#1b5fd5!important;
+}
+
+/* global floating contact */
+.global-contact-float{
+  position:fixed;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:140;
+  display:flex;
+  align-items:center;
+}
+.contact-float-icon{
+  width:50px;
+  height:50px;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:50%;
+  background:#1558c8;
+  color:#fff;
+  box-shadow:0 8px 24px rgba(21,88,200,.25);
+}
+.contact-float-panel{
+  position:absolute;
+  right:0;
+  top:58px;
+  width:230px;
+  padding:14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  background:#fff;
+  border:1px solid #dfe6e9;
+  box-shadow:0 14px 36px rgba(16,42,54,.16);
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(-6px);
+  transition:.18s ease;
+}
+.global-contact-float:hover .contact-float-panel,
+.global-contact-float:focus-within .contact-float-panel{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+.contact-float-panel small{
+  color:#75858d;
+  font-size:11px;
+}
+.contact-float-panel a{
+  color:#18313e;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.5;
+  word-break:break-all;
+}
+
+/* product images: always show the complete machine */
+.product-media,
+.karee-product-card .product-media,
+.karee-category-image,
+.karee-gallery-main,
+.gallery-main,
+.karee-detail-images button{
+  background:#f5f7f7!important;
+}
+.product-img,
+.karee-product-card .product-img,
+.karee-category-image>img,
+.karee-gallery-main>img,
+.gallery-main>img,
+.karee-gallery-thumbs img,
+.gallery-thumbs img,
+.karee-detail-images img{
+  object-fit:contain!important;
+  object-position:center!important;
+}
+.karee-product-card .product-img{
+  padding:14px!important;
+}
+.karee-gallery-main>img{
+  padding:18px!important;
+  max-width:100%!important;
+  max-height:100%!important;
+}
+.karee-detail-images img{
+  padding:14px!important;
+  width:100%!important;
+  height:100%!important;
+}
+
+/* keep product card images visually balanced */
+.karee-product-card .product-media{
+  aspect-ratio:4/3!important;
+  min-height:300px!important;
+}
+.karee-category-image{
+  min-height:260px!important;
+}
+
+/* remove the old Karee one-row header leftovers */
+.karee-header,
+.karee-nav-shell,
+.karee-header-actions,
+.header-phone{
+  all:unset;
+}
+
+/* restore only our current header after reset above */
+.site-header.restored-header{display:block!important}
+.restored-header .masthead,
+.restored-header .topbar{display:block!important}
+
+/* tablet */
+@media(max-width:980px){
+  .restored-header .masthead-inner{
+    grid-template-columns:minmax(190px,230px) minmax(0,1fr) minmax(220px,260px)!important;
+    gap:22px!important;
+  }
+  .restored-header .logo.logo-has-image{
+    width:220px!important;
+    min-width:180px!important;
+    height:72px!important;
+  }
+  .restored-header .masthead-copy{
+    padding-left:22px!important;
+  }
+  .restored-header .masthead-copy strong{
+    font-size:20px!important;
+  }
+  .restored-header .masthead-copy span{
+    font-size:13px!important;
+  }
+  .restored-header .masthead-hotline a{
+    font-size:18px!important;
+  }
+  .restored-nav a{
+    padding:0 18px!important;
+    font-size:14px!important;
+  }
+}
+
+/* mobile */
+@media(max-width:680px){
+  .site-header.restored-header{
+    position:relative!important;
+  }
+  .restored-header .masthead-inner{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    justify-items:center!important;
+    padding-top:10px!important;
+    padding-bottom:10px!important;
+  }
+  .restored-header .masthead-inner>.logo{
+    justify-self:center!important;
+  }
+  .restored-header .logo.logo-has-image{
+    width:210px!important;
+    max-width:72vw!important;
+    min-width:0!important;
+    height:64px!important;
+  }
+  .restored-header .masthead-copy,
+  .restored-header .masthead-hotline{
+    display:none!important;
+  }
+  .restored-header .topbar-inner{
+    min-height:56px!important;
+    height:auto!important;
+    justify-content:flex-start!important;
+  }
+  .restored-header .mobile-toggle{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:48px!important;
+    height:48px!important;
+    border:0!important;
+    background:#fff!important;
+  }
+  .restored-nav{
+    display:none!important;
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:56px!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    background:#fff!important;
+    border-bottom:1px solid #e7ecee!important;
+    box-shadow:0 12px 28px rgba(16,42,54,.08)!important;
+  }
+  .restored-nav.open{
+    display:flex!important;
+  }
+  .restored-nav a{
+    width:100%!important;
+    min-height:48px!important;
+    justify-content:flex-start!important;
+    padding:0 20px!important;
+    border-bottom:1px solid #eef1f2!important;
+  }
+  .global-contact-float{
+    right:12px;
+    bottom:20px;
+    top:auto;
+    transform:none;
+  }
+  .contact-float-panel{
+    top:auto;
+    bottom:58px;
+  }
+  .karee-product-card .product-media{
+    min-height:240px!important;
+  }
+}

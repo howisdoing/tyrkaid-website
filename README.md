@@ -1,30 +1,25 @@
-# TYRKAID · Karee-style Cloudflare Edition
+# TYRKAID · Karee-style Fixed Header Release
 
-这一版以 www.leoloo.cn / Karee Fitness 的公开页面结构和设计语言为参考，
-重做 TYRKAID 前台和后台视觉，但继续使用现有：
+本版保留 Karee 风格内容区，但恢复稳定的 TYRKAID 两层页头。
 
-- Cloudflare Workers + Static Assets
-- Cloudflare D1
-- GitHub 图片存储
-- /admin 后台登录
-- 产品 / 分类 / 新闻 / 网站装修 / 图片库 / 导航
-- 产品“推荐到首页”
-- 后台首页 Dashboard
-- robots.txt / sitemap.xml / llms.txt / ARD
-- 多图产品图库
+## 保留
+- Cloudflare Workers + D1 + GitHub 图片存储
+- Karee 风格首页内容区
+- Karee 风格产品中心
+- Karee 风格产品详情
+- 后台 Dashboard / 产品 / 新闻 / 网站装修 / 图片库 / 导航
 
-## 前台
-- 极简白底 sticky header
-- 首页：Hero → 产品分类 → 精选产品 → 关于我们 → 新闻
-- 产品中心：分类筛选 + 搜索 + 产品卡片
-- 产品详情：主图 + 多缩略图 + 概览 + 技术参数 + 更多图片
-- 工业设备图片继续使用 contain，避免裁切机器
+## 本次修正
+1. 顶部恢复：
+   - Logo
+   - 宣传语
+   - 主营产品
+   - 服务热线
+   - 第二行横向导航
+2. 整个顶部桌面端继续 sticky
+3. 每个前台页面都有右侧联系方式悬浮按钮
+4. 产品图片统一 contain，完整显示机器，不裁切
+5. 首页产品卡、分类图、产品详情主图、缩略图和更多图片均完整显示
 
-## 后台
-保留原功能与 D1 数据结构，只统一为更轻、更简洁的视觉样式。
-
-## 部署
-1. 整包覆盖 GitHub 仓库。
-2. Commit / Push。
-3. 等 Cloudflare 自动部署。
-4. 原有 D1、Secrets 和 GitHub Token 无需重新设置。
+部署：
+GitHub 整包覆盖 → Commit → Cloudflare 自动部署。

@@ -63,19 +63,43 @@ function Header(){
  const[open,setOpen]=useState(false),loc=useLocation(),{navigation,settings}=useData();
  useEffect(()=>setOpen(false),[loc.pathname]);
  const nav=[...navigation].filter(x=>x.visible!==false).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
- const phone=settings.service_hotline_1;
- return <header className="site-header karee-header">
-  <div className="container karee-nav-shell">
-   <Logo/>
-   <button className="mobile-toggle" type="button" aria-label={open?"关闭导航菜单":"打开导航菜单"} aria-expanded={open} aria-controls="main-navigation" onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button>
-   <nav id="main-navigation" className={open?'nav karee-nav open':'nav karee-nav'}>
-    {nav.map(n=><NavLink key={n.id||n.path} to={n.path}>{n.label}</NavLink>)}
-   </nav>
-   <div className="karee-header-actions">
-    {phone&&<a className="header-phone" href={'tel:'+phone.replace(/[^0-9+]/g,'')}><Phone size={15}/><span>{phone}</span></a>}
+ const phones=[settings.service_hotline_1,settings.service_hotline_2].filter(Boolean);
+ return <>
+  <header className="site-header restored-header">
+   <div className="masthead">
+    <div className="container masthead-inner">
+     <Logo/>
+     <div className="masthead-copy">
+      <strong>{settings.header_tagline}</strong>
+      <span>{settings.header_products_text}</span>
+     </div>
+     <div className="masthead-hotline">
+      <Phone size={28}/>
+      <div>
+       <span>{settings.service_hotline_label||'服务热线'}</span>
+       {phones.map(p=><a key={p} href={'tel:'+p.replace(/[^0-9+]/g,'')}>{p}</a>)}
+      </div>
+     </div>
+    </div>
    </div>
-  </div>
- </header>
+   <div className="topbar">
+    <div className="container topbar-inner">
+     <button className="mobile-toggle" type="button" aria-label={open?"关闭导航菜单":"打开导航菜单"} aria-expanded={open} aria-controls="main-navigation" onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button>
+     <nav id="main-navigation" className={open?'nav restored-nav open':'nav restored-nav'}>
+      {nav.map(n=><NavLink key={n.id||n.path} to={n.path}>{n.label}</NavLink>)}
+     </nav>
+    </div>
+   </div>
+  </header>
+  {phones.length>0&&<div className="global-contact-float">
+   <button type="button" className="contact-float-icon" aria-label="联系方式"><Phone size={20}/></button>
+   <div className="contact-float-panel">
+    <small>{settings.service_hotline_label||'服务热线'}</small>
+    {phones.map(p=><a key={p} href={'tel:'+p.replace(/[^0-9+]/g,'')}>{p}</a>)}
+    {settings.contact_email&&<a href={'mailto:'+settings.contact_email}>{settings.contact_email}</a>}
+   </div>
+  </div>}
+ </>
 }function Footer(){
  const{settings}=useData();
  return <footer className="footer karee-footer">
