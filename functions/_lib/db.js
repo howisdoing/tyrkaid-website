@@ -1,5 +1,11 @@
 const safeJson=(s,fallback)=>{try{return JSON.parse(s||'')}catch{return fallback}};
-export function parseProduct(row){if(!row)return row;return {...row,featured:Boolean(row.featured),specs:safeJson(row.specs_json,{}),images:safeJson(row.images_json,[])}}
+export function parseProduct(row){
+ if(!row)return row;
+ const raw=safeJson(row.images_json,[]);
+ const main=Array.isArray(raw)?raw:(Array.isArray(raw?.main)?raw.main:[]);
+ const detail=Array.isArray(raw?.detail)?raw.detail:[];
+ return {...row,featured:Boolean(row.featured),specs:safeJson(row.specs_json,{}),images:main,detail_images:detail};
+}
 export function parseNews(row){return row||null}
 export function parseNavigation(row){return row?{...row,visible:Boolean(row.visible)}:row}
 export async function allCatalog(DB,{includeDrafts=false}={}){

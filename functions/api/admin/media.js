@@ -25,7 +25,7 @@ async function branchInfo(env){
 }
 function usageMap(catalog){
   const map=new Map(),add=(url,label)=>{if(!url)return;const key=url.startsWith('/')?url:'/'+url;const arr=map.get(key)||[];if(!arr.includes(label))arr.push(label);map.set(key,arr)};
-  for(const p of catalog.products||[])for(const u of p.images||[])add(u,`产品：${p.model||p.name}`);
+  for(const p of catalog.products||[]){for(const u of p.images||[])add(u,`产品主图：${p.model||p.name}`);for(const u of p.detail_images||[])add(u,`产品详情图：${p.model||p.name}`);}
   for(const n of catalog.news||[])add(n.cover_url,`新闻：${n.title}`);
   const s=catalog.settings||{};
   add(s.logo_url,'网站设置：Logo');add(s.favicon_url,'网站设置：Favicon');add(s.hero_image_url,'网站设置：首页 Banner');add(s.about_image_url,'网站设置：关于我们');
