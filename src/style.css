@@ -4681,3 +4681,22 @@ button,
 .category-image-empty p{margin:0;font-size:11px}
 .category-image-empty>div{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 @media(max-width:680px){.category-image-preview{grid-template-columns:1fr}.category-image-preview>img{width:100%;max-width:260px}}
+
+
+/* ===== Admin recovery / data refresh ===== */
+.admin-top-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.admin-top-actions .btn-ghost{
+  border:1px solid #dbe3e6;
+  background:#fff;
+  color:#425b66;
+}
+@media(max-width:680px){
+  .admin-top-actions{
+    width:100%;
+  }
+}
